@@ -1,9 +1,8 @@
 # Pull base image
 FROM tomcat:8-jre8-alpine
 
-# TODO: Missing @drcd1
 LABEL maintainer="jfloff@inesc-id.pt"
-
+LABEL maintainer="duartercorreia@tecnico.ulisboa.pt"
 
 ###################
 # Install Java 8
