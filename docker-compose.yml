@@ -1,21 +1,15 @@
 version: '3'
 services:
   retwisj:
-    build: .
+    build: ./retwisj
     ports:
       - '8080:8080'
     links:
       - redis
-  retwisj-dev:
-    build: .
-    command: bash
-    ports:
-      - '8080:8080'
-    links:
-      - redis
-    working_dir: /home/retwisj
-    volumes:
-      - '.:/home/retwisj'
+      - acl
+  acl:
+    build: ./acl
+  
   redis:
     image: redis
     expose:
