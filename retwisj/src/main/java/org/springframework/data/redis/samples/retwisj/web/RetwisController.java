@@ -24,6 +24,8 @@ import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.redis.RetwisRepository;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -43,10 +45,13 @@ public class RetwisController {
 
 	@Autowired
 	private final RetwisRepository retwis;
-
+	
+	private final ACLInterface acl;
+	
 	@Autowired
 	public RetwisController(RetwisRepository twitter) {
 		this.retwis = twitter;
+		this.acl = new ACLInterfaceDummy();
 	}
 
 	@RequestMapping("/")
@@ -116,6 +121,12 @@ public class RetwisController {
 				model.addAttribute("also_followed", retwis.alsoFollowed(RetwisSecurity.getUid(), targetUid));
 				model.addAttribute("common_followers", retwis.commonFollowers(RetwisSecurity.getUid(), targetUid));
 				model.addAttribute("follows", retwis.isFollowing(RetwisSecurity.getUid(), targetUid));
+				
+				
+				//model.addAttribute("blocked", retwis.blocks(RetwisSecurity.getUid(), targetUid)? 2: 1);
+				
+			} else {
+				model.addAttribute("blocked_users", retwis.getBlocks(targetUid));
 			}
 		}
 		// sanitize page attribute

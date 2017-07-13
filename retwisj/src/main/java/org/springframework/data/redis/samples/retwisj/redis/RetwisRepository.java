@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -43,6 +45,8 @@ import org.springframework.data.redis.hash.JacksonHashMapper;
 import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
 import org.springframework.data.redis.samples.retwisj.web.WebPost;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import org.springframework.data.redis.support.collections.DefaultRedisList;
@@ -76,6 +80,8 @@ public class RetwisRepository {
 
 	private final HashMapper<Post, String, String> postMapper = new DecoratingStringHashMapper<Post>(
 			new JacksonHashMapper<Post>(Post.class));
+	
+	private final ACLInterface acl = new ACLInterfaceDummy();
 
 	@Inject
 	public RetwisRepository(StringRedisTemplate template) {
@@ -101,7 +107,24 @@ public class RetwisRepository {
 		users.addFirst(name);
 		return addAuth(name);
 	}
+	
+	public Set<String> getBlocks(String uid){
+		Set<String> uids = acl.blocks(uid);
+		Set<String> names = new HashSet<String>();
+		for(String id: uids){
+			String name = findName(id);
+			if(name!=null)
+				names.add(name);
+		}
+		
+		return names;
+	}
 
+	/* does uid block target uid */
+	public boolean blocks(String uid, String targetUid){
+		return acl.blocks(uid).contains(targetUid);
+	}
+	
 	public List<WebPost> getPost(String pid) {
 		return Collections.singletonList(convertPost(pid, post(pid)));
 	}

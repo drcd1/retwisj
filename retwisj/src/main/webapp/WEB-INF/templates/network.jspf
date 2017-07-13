@@ -31,4 +31,17 @@
     </ul>
 	<c:if test="${more_following}"><fmt:message key="and.more"/></c:if>
   </div>
+  
+
+  
+  <c:if test="${!empty blocked_users}">
+    <div class="box">
+  	<h4>Blocked Users</h4>
+  	<ul class="user-list">
+	<c:forEach var="b" items="${blocked_users}">
+	     <li><a href="!${b}"/>${b}</a></li>
+	</c:forEach>
+	</ul>
+  	</div>
+   </c:if>
 </div>
