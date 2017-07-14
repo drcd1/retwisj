@@ -5,11 +5,11 @@ import java.util.Set;
 
 public class ACLInterfaceDummy implements ACLInterface {
 	public void block(String uid, String targetUid){
-		//does nothing
+		System.out.println(uid + " blocked " + targetUid);
 	}
 
 	public void unblock(String uid, String targetUid){
-		//does nothing
+		System.out.println(uid  +" unblocked " + targetUid);
 	}
 	
 	public Set<String> blocks(String uid){
@@ -19,6 +19,4 @@ public class ACLInterfaceDummy implements ACLInterface {
 		
 		return tmp;
 	}
-	
-	public void nothing(){}
 }

@@ -47,6 +47,7 @@ import org.springframework.data.redis.samples.retwisj.Range;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceRest;
 import org.springframework.data.redis.samples.retwisj.web.WebPost;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import org.springframework.data.redis.support.collections.DefaultRedisList;
@@ -81,7 +82,7 @@ public class RetwisRepository {
 	private final HashMapper<Post, String, String> postMapper = new DecoratingStringHashMapper<Post>(
 			new JacksonHashMapper<Post>(Post.class));
 	
-	private final ACLInterface acl = new ACLInterfaceDummy();
+	private final ACLInterface acl = new ACLInterfaceRest();
 
 	@Inject
 	public RetwisRepository(StringRedisTemplate template) {
@@ -123,6 +124,13 @@ public class RetwisRepository {
 	/* does uid block target uid */
 	public boolean blocks(String uid, String targetUid){
 		return acl.blocks(uid).contains(targetUid);
+	}
+	
+	public void block(String uid, String targetUid){
+		acl.block(uid, targetUid);
+	}
+	public void unblock(String uid, String targetUid){
+		acl.unblock(uid, targetUid);
 	}
 	
 	public List<WebPost> getPost(String pid) {
@@ -214,7 +222,7 @@ public class RetwisRepository {
 	}
 
 
-	private String findName(String uid) {
+	public String findName(String uid) {
 		if (!StringUtils.hasText(uid)) {
 			return "";
 		}

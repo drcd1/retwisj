@@ -65,9 +65,9 @@ RUN set -o errexit -o nounset \
 
 
 ###################
-# Build RestTest
+# Build acl
 #
-WORKDIR /home/RestTest
-ADD . /home/RestTest
+WORKDIR /home/acl
+ADD . /home/acl
 RUN gradle build  && \
-    cp build/libs/RestTest.war /usr/local/tomcat/webapps/
+    cp build/libs/acl.war /usr/local/tomcat/webapps/

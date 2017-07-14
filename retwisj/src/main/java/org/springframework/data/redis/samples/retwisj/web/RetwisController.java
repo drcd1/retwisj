@@ -46,12 +46,9 @@ public class RetwisController {
 	@Autowired
 	private final RetwisRepository retwis;
 	
-	private final ACLInterface acl;
-	
 	@Autowired
 	public RetwisController(RetwisRepository twitter) {
 		this.retwis = twitter;
-		this.acl = new ACLInterfaceDummy();
 	}
 
 	@RequestMapping("/")
@@ -122,8 +119,7 @@ public class RetwisController {
 				model.addAttribute("common_followers", retwis.commonFollowers(RetwisSecurity.getUid(), targetUid));
 				model.addAttribute("follows", retwis.isFollowing(RetwisSecurity.getUid(), targetUid));
 				
-				
-				//model.addAttribute("blocked", retwis.blocks(RetwisSecurity.getUid(), targetUid)? 2: 1);
+				model.addAttribute("blocked", retwis.blocks(RetwisSecurity.getUid(), targetUid)? "2" : "1");
 				
 			} else {
 				model.addAttribute("blocked_users", retwis.getBlocks(targetUid));
@@ -141,10 +137,24 @@ public class RetwisController {
 		return "home";
 	}
 
+	
+	
 	@RequestMapping(value = "/!{name}", method = RequestMethod.POST)
 	public String posts(@PathVariable String name, WebPost post, Model model, HttpServletRequest request) {
 		checkUser(name);
 		retwis.post(name, post);
+		return "redirect:/!" + name;
+	}
+	
+	@RequestMapping(value = "/!{name}/block", method = RequestMethod.GET)
+	public String block(@PathVariable String name, Model model){
+		retwis.block(RetwisSecurity.getUid(), retwis.findUid(name));
+		return "redirect:/!" + name;
+	}
+	
+	@RequestMapping(value = "/!{name}/unblock", method = RequestMethod.GET)
+	public String unblock(@PathVariable String name, Model model){
+		retwis.unblock(RetwisSecurity.getUid(), retwis.findUid(name));
 		return "redirect:/!" + name;
 	}
 

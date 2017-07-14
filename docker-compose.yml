@@ -3,14 +3,22 @@ services:
   retwisj:
     build: ./retwisj
     ports:
-      - '8080:8080'
+      - "8080:8080"
     links:
       - redis
       - acl
   acl:
     build: ./acl
+    links:
+     - redis2
+    expose:
+     - "8080"
   
   redis:
+    image: redis
+    expose:
+      - '6379'
+  redis2:
     image: redis
     expose:
       - '6379'

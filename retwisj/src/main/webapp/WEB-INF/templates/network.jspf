@@ -32,7 +32,19 @@
 	<c:if test="${more_following}"><fmt:message key="and.more"/></c:if>
   </div>
   
-
+  
+   <c:if test="${!empty blocked}">
+    <div class="box">
+  	<c:if test="${blocked == '1'}">
+  	<h2><a href="<c:url value="/!${name}/block"/>">Block</a></h2>
+  	</c:if>
+  	<c:if test="${blocked == '2'}">
+  	<h2><a href="<c:url value="/!${name}/unblock"/>">Unblock</a></h2>
+  	</c:if>
+  	</div>
+   </c:if>
+  
+  
   
   <c:if test="${!empty blocked_users}">
     <div class="box">

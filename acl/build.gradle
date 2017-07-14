@@ -27,6 +27,9 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-data-redis")
+    compile 'javax.inject:javax.inject:1'
+	
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
