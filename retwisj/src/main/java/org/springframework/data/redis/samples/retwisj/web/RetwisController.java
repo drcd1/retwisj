@@ -15,6 +15,9 @@
  */
 package org.springframework.data.redis.samples.retwisj.web;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +29,7 @@ import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.redis.RetwisRepository;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceRest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -46,13 +50,15 @@ public class RetwisController {
 	@Autowired
 	private final RetwisRepository retwis;
 	
+	private final ACLInterface acl = new ACLInterfaceRest();
+	
 	@Autowired
 	public RetwisController(RetwisRepository twitter) {
 		this.retwis = twitter;
 	}
 
 	@RequestMapping("/")
-	public String root(@RequestParam(required = false) Integer page, Model model) {
+	public String root(@RequestParam(required = false) Integer page, Model model) {	
 		if (RetwisSecurity.isSignedIn()) {
 			return "redirect:/!" + RetwisSecurity.getName();
 		}
@@ -103,6 +109,9 @@ public class RetwisController {
 
 	@RequestMapping(value = "/!{name}", method = RequestMethod.GET)
 	public String posts(@PathVariable String name, @RequestParam(required = false) String replyto, @RequestParam(required = false) String replypid, @RequestParam(required = false) Integer page, Model model) {
+		
+		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
+			
 		checkUser(name);
 		String targetUid = retwis.findUid(name);
 		model.addAttribute("post", new Post());
@@ -119,10 +128,10 @@ public class RetwisController {
 				model.addAttribute("common_followers", retwis.commonFollowers(RetwisSecurity.getUid(), targetUid));
 				model.addAttribute("follows", retwis.isFollowing(RetwisSecurity.getUid(), targetUid));
 				
-				model.addAttribute("blocked", retwis.blocks(RetwisSecurity.getUid(), targetUid)? "2" : "1");
+				model.addAttribute("blocked", blocks(RetwisSecurity.getUid(), targetUid)? "2" : "1");
 				
 			} else {
-				model.addAttribute("blocked_users", retwis.getBlocks(targetUid));
+				model.addAttribute("blocked_users", getBlocks(targetUid));
 			}
 		}
 		// sanitize page attribute
@@ -148,13 +157,13 @@ public class RetwisController {
 	
 	@RequestMapping(value = "/!{name}/block", method = RequestMethod.GET)
 	public String block(@PathVariable String name, Model model){
-		retwis.block(RetwisSecurity.getUid(), retwis.findUid(name));
+		block(RetwisSecurity.getUid(), retwis.findUid(name));
 		return "redirect:/!" + name;
 	}
 	
 	@RequestMapping(value = "/!{name}/unblock", method = RequestMethod.GET)
 	public String unblock(@PathVariable String name, Model model){
-		retwis.unblock(RetwisSecurity.getUid(), retwis.findUid(name));
+		unblock(RetwisSecurity.getUid(), retwis.findUid(name));
 		return "redirect:/!" + name;
 	}
 
@@ -174,6 +183,8 @@ public class RetwisController {
 
 	@RequestMapping("/!{name}/mentions")
 	public String mentions(@PathVariable String name, Model model) {
+		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
+		
 		checkUser(name);
 		model.addAttribute("name", name);
 		String targetUid = retwis.findUid(name);
@@ -193,6 +204,10 @@ public class RetwisController {
 
 	@RequestMapping("/timeline")
 	public String timeline(@RequestParam(required = false) Integer page, Model model) {
+		
+		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
+		
+		
 		// sanitize page attribute
 		page = (page != null ? Math.abs(page) : 1);
 		model.addAttribute("page", page + 1);
@@ -200,6 +215,7 @@ public class RetwisController {
 		model.addAttribute("moreposts", retwis.hasMoreTimeline(range));
 		model.addAttribute("posts", retwis.timeline(range));
 		model.addAttribute("users", retwis.newUsers(new Range()));
+		
 		return "timeline";
 	}
 
@@ -229,6 +245,31 @@ public class RetwisController {
 			throw new NoSuchDataException(pid, false);
 		}
 	}
+	
+	public Set<String> getBlocks(String uid){
+		Set<String> uids = acl.blocks(uid);
+		Set<String> names = new HashSet<String>();
+		for(String id: uids){
+			String name = retwis.findName(id);
+			if(name!=null)
+				names.add(name);
+		}
+		
+		return names;
+	}
+
+	/* does uid block target uid */
+	public boolean blocks(String uid, String targetUid){
+		return acl.blocks(uid).contains(targetUid);
+	}
+	
+	public void block(String uid, String targetUid){
+		acl.block(uid, targetUid);
+	}
+	public void unblock(String uid, String targetUid){
+		acl.unblock(uid, targetUid);
+	}
+	
 
 	@ExceptionHandler(NoSuchDataException.class)
 	public String handleNoUserException(NoSuchDataException ex) {

@@ -3,7 +3,6 @@ package acl;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +23,11 @@ public class ACLController {
 	@RequestMapping(value = "/blocks", method=RequestMethod.GET)
 	public Set<String> blocks(@RequestParam("id") String id){
 		return acl.blocks(id);
+	}
+	
+	@RequestMapping(value = "/blockedBy", method=RequestMethod.GET)
+	public Set<String> blockedBy(@RequestParam("id") String id){
+		return acl.blockedBy(id);
 	}
 	
 	@RequestMapping(value = "/block", method=RequestMethod.GET)

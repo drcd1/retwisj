@@ -78,11 +78,12 @@ public class RetwisRepository {
 	private RedisList<String> users;
 	// global timeline
 	private final RedisList<String> timeline;
+	
+	//users that block the current user
+	private Set<String> blocked_by;
 
 	private final HashMapper<Post, String, String> postMapper = new DecoratingStringHashMapper<Post>(
 			new JacksonHashMapper<Post>(Post.class));
-	
-	private final ACLInterface acl = new ACLInterfaceRest();
 
 	@Inject
 	public RetwisRepository(StringRedisTemplate template) {
@@ -93,6 +94,7 @@ public class RetwisRepository {
 		timeline = new DefaultRedisList<String>(KeyUtils.timeline(), template);
 		userIdCounter = new RedisAtomicLong(KeyUtils.globalUid(), template.getConnectionFactory());
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
+		blocked_by = new HashSet<String>();
 	}
 
 	public String addUser(String name, String password) {
@@ -109,28 +111,8 @@ public class RetwisRepository {
 		return addAuth(name);
 	}
 	
-	public Set<String> getBlocks(String uid){
-		Set<String> uids = acl.blocks(uid);
-		Set<String> names = new HashSet<String>();
-		for(String id: uids){
-			String name = findName(id);
-			if(name!=null)
-				names.add(name);
-		}
-		
-		return names;
-	}
-
-	/* does uid block target uid */
-	public boolean blocks(String uid, String targetUid){
-		return acl.blocks(uid).contains(targetUid);
-	}
-	
-	public void block(String uid, String targetUid){
-		acl.block(uid, targetUid);
-	}
-	public void unblock(String uid, String targetUid){
-		acl.unblock(uid, targetUid);
+	public void setBlocked(Set<String> blocked){
+		blocked_by = blocked;
 	}
 	
 	public List<WebPost> getPost(String pid) {
@@ -370,7 +352,6 @@ public class RetwisRepository {
 		final String replyPid = "replyPid";
 		final String replyUid = "replyUid";
 		final String time = "time";
-
 		SortQuery<String> query = SortQueryBuilder.sort(key).noSort().get(pidKey).get(pid + uid).get(pid + content).get(
 				pid + replyPid).get(pid + replyUid).get(pid + time).limit(range.begin, range.end).build();
 		BulkMapper<WebPost, String> hm = new BulkMapper<WebPost, String>() {
@@ -390,6 +371,20 @@ public class RetwisRepository {
 			}
 		};
 		List<WebPost> sort = template.sort(query, hm);
+		
+		// removes blocked posts
+		
+		for (Iterator<WebPost> it= sort.iterator(); it.hasNext();) {
+		    WebPost p  = it.next();
+		    if(blocked_by.contains(findUid(p.getName()))){
+				it.remove();
+		    }
+		}
+			
+			
+			/*if(blocked_by.contains(findUid(p.getName()))){
+				sort.remove(p);
+			}*/
 
 		return sort;
 	}

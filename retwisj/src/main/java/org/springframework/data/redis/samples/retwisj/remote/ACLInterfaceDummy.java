@@ -19,4 +19,12 @@ public class ACLInterfaceDummy implements ACLInterface {
 		
 		return tmp;
 	}
+	
+	public Set<String> blockedBy(String uid){
+		Set<String> tmp = new HashSet<String>();
+		tmp.add("4");
+		tmp.add("5");
+		
+		return tmp;
+	}
 }

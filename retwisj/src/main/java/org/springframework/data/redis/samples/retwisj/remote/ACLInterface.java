@@ -29,4 +29,6 @@ public interface ACLInterface {
 	 * @return Returns the uids blocked by the user
 	 */
 	public Set<String> blocks(String uid);
-}
+	
+	public Set<String> blockedBy(String uid);
+} 

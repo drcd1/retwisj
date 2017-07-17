@@ -28,15 +28,22 @@ public class ACL {
 	Set<String> blocks(String uid){
 		return setOps.members(uid + ":block");
 	}
+	
+	Set<String> blockedBy(String uid){
+		return setOps.members(uid + ":blockedBy");
+	}
+	
 	void block(String uid, String targetUid){
 		setOps.add(uid + ":block", targetUid);
+		setOps.add(targetUid + ":blockedBy", uid);
+		
 		System.out.println(uid + " block " + targetUid);
 		
 	}
 	void unblock(String uid, String targetUid){
 		
-
 		setOps.remove(uid + ":block", targetUid);
+		setOps.remove(targetUid + ":blockedBy", uid);
 		
 		System.out.println(uid + " unblock " + targetUid);		
 	}
