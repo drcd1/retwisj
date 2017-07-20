@@ -29,6 +29,7 @@ import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.redis.RetwisRepository;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
+import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceGRPC;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceRest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,7 +51,7 @@ public class RetwisController {
 	@Autowired
 	private final RetwisRepository retwis;
 	
-	private final ACLInterface acl = new ACLInterfaceRest();
+	private final ACLInterface acl = new ACLInterfaceGRPC();
 	
 	@Autowired
 	public RetwisController(RetwisRepository twitter) {

@@ -41,14 +41,7 @@ RUN set -o errexit -o nounset \
 		openssl \
 		unzip \
 	\
-	\
-	&& apk --no-cache add ca-certificates \
-	&& wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub \
-	&& wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk \
-	&& apk add glibc-2.23-r3.apk \
 	&& echo "Downloading Gradle" \
-	\
-	\
 	&& wget -O gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
 	\
 	&& echo "Checking download hash" \
@@ -72,12 +65,14 @@ RUN set -o errexit -o nounset \
 
 
 
-###################
-# Build RetwisJ
-#
-WORKDIR /home/retwisj
-ADD . /home/retwisj
-RUN gradle build && \
-    cp build/libs/retwisj.war /usr/local/tomcat/webapps/
+	
 
-#COPY build/libs/retwisj.war /usr/local/tomcat/webapps/
+###################
+# Build acl
+#
+WORKDIR /home/acl-rest
+ADD . /home/acl-rest
+RUN gradle build  && \
+    cp build/libs/acl-rest.war /usr/local/tomcat/webapps/
+
+#COPY build/libs/acl-rest.war /usr/local/tomcat/webapps/

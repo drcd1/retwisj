@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "acl";
+option java_outer_classname = "ACLProto";
+option objc_class_prefix = "ACLP";
+
+package acl;
+
+// Interface exported by the server.
+service ACLService {
+  rpc Blocks(Uid) returns (UidSet) {}
+  rpc BlockedBy(Uid) returns (UidSet) {}
+  rpc Block(Uids) returns (Empty) {}
+  rpc Unblock(Uids) returns (Empty) {}
+}
+
+message Uids {
+	string id = 1;
+	string targetId = 2;
+}
+
+message Uid {
+	string id = 1;
+}
+	
+
+message UidSet {
+	repeated string ids = 1;
+}
+
+message Empty {
+
+}

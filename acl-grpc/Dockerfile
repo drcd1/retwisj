@@ -26,9 +26,9 @@ RUN set -x \
 #
 
 ENV GRADLE_HOME /opt/gradle
-ENV GRADLE_VERSION 4.0
+ENV GRADLE_VERSION 4.0.1
 
-ARG GRADLE_DOWNLOAD_SHA256=56bd2dde29ba2a93903c557da1745cafd72cdd8b6b0b83c05a40ed7896b79dfe
+ARG GRADLE_DOWNLOAD_SHA256=d717e46200d1359893f891dab047fdab98784143ac76861b53c50dbd03b44fd4
 RUN set -o errexit -o nounset \
 	&& echo "Installing dependencies" \
 	&& apk add --no-cache \
@@ -40,6 +40,12 @@ RUN set -o errexit -o nounset \
 		ca-certificates \
 		openssl \
 		unzip \
+	\
+	&& apk --no-cache add ca-certificates \
+	&& wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub \
+	&& wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk \
+	&& apk add glibc-2.23-r3.apk \
+	\
 	\
 	&& echo "Downloading Gradle" \
 	&& wget -O gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
@@ -60,14 +66,17 @@ RUN set -o errexit -o nounset \
 	&& addgroup -S -g 1000 gradle \
 	&& adduser -D -S -G gradle -u 1000 -s /bin/ash gradle \
 	&& mkdir /home/gradle/.gradle \
-	&& chown -R gradle:gradle /home/gradle
+&& chown -R gradle:gradle /home/gradle
 
 
+	
 
 ###################
 # Build acl
 #
-WORKDIR /home/acl
-ADD . /home/acl
+WORKDIR /home/acl-grpc
+ADD . /home/acl-grpc
 RUN gradle build  && \
-    cp build/libs/acl.war /usr/local/tomcat/webapps/
+    cp build/libs/acl-grpc.war /usr/local/tomcat/webapps/
+
+#COPY build/libs/acl-grpc.war /usr/local/tomcat/webapps/
