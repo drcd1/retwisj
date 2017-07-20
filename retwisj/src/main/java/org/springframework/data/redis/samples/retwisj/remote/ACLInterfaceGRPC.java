@@ -28,7 +28,7 @@ public class ACLInterfaceGRPC implements ACLInterface {
 	
 	
 	public ACLInterfaceGRPC(){
-		 this(ManagedChannelBuilder.forAddress("acl-grpc", 8084).usePlaintext(true).build());
+		 this(ManagedChannelBuilder.forAddress("acl", 8084).usePlaintext(true).build());
 	}
 	
 	ACLInterfaceGRPC(ManagedChannel channel) {

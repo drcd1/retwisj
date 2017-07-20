@@ -74,9 +74,9 @@ RUN set -o errexit -o nounset \
 ###################
 # Build acl
 #
-WORKDIR /home/acl-grpc
-ADD . /home/acl-grpc
+WORKDIR /home/acl
+ADD . /home/acl
 RUN gradle build  && \
-    cp build/libs/acl-grpc.war /usr/local/tomcat/webapps/
+    cp build/libs/acl.war /usr/local/tomcat/webapps/
 
-#COPY build/libs/acl-grpc.war /usr/local/tomcat/webapps/
+#COPY build/libs/acl.war /usr/local/tomcat/webapps/

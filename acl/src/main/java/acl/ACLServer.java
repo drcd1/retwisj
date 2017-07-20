@@ -37,7 +37,6 @@ public class ACLServer implements CommandLineRunner {
 	    server = ServerBuilder.forPort(port).addService(new ACLServiceImpl(acl))
 	        .build()
 	        .start();
-	    System.out.println(port + ": port");
 	    logger.info("Server started, listening on " + port);
 	    Runtime.getRuntime().addShutdownHook(new Thread() {
 	      @Override

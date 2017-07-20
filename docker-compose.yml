@@ -6,22 +6,16 @@ services:
       - "8080:8080"
     links:
       - redis
-      - acl-rest
-      - acl-grpc
-  acl-rest:
-    build: ./acl-rest
+      - acl
+ 
+  acl:
+    build: ./acl
     links:
      - redis2
     expose:
      - "8080"
-     
-  acl-grpc:
-    build: ./acl-grpc
-    links:
-     - redis2
-    expose:
      - "8084"
-  
+     
   redis:
     image: redis
     expose:
