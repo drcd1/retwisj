@@ -15,101 +15,42 @@ import org.springframework.stereotype.Component;
 @Component
 public class ACLServer implements CommandLineRunner {
 	
-	private static final Logger logger = Logger.getLogger(ACLServer.class.getName());
-
-	private Server server;
+	ACLServerGRPC grpcServer;
+	ACLServerThrift thriftServer;
 	
 	@Autowired
-	private ACL acl;
+	ACL acl;
 	
-	public ACLServer() {
-	}
 	
 	
 	public void run(String... args) throws Exception {
-		start();
-	    blockUntilShutdown();
 		
-	}
-	private void start() throws IOException {
-	    /* The port on which the server should run */
-	    int port = 8084;
-	    server = ServerBuilder.forPort(port).addService(new ACLServiceImpl(acl))
-	        .build()
-	        .start();
-	    logger.info("Server started, listening on " + port);
-	    Runtime.getRuntime().addShutdownHook(new Thread() {
-	      @Override
-	      public void run() {
-	        // Use stderr here since the logger may have been reset by its JVM shutdown hook.
-	        System.err.println("*** shutting down gRPC server since JVM is shutting down");
-	        ACLServer.this.stop();
-	        System.err.println("*** server shut down");
-	      }
-	    });
-	}
-	
-	private void stop() {
-		if (server != null) {
-			server.shutdown();
-		}
-	}
-	
-	/**
-	 * Await termination on the main thread since the grpc library uses daemon threads.
-	 */
-	private void blockUntilShutdown() throws InterruptedException {
-		if (server != null) {
-			server.awaitTermination();
-		}
-	}
-
-	
-	static class ACLServiceImpl extends ACLServiceGrpc.ACLServiceImplBase {
+		grpcServer=new ACLServerGRPC(acl);
+		thriftServer=new ACLServerThrift(acl);
+		Runnable grpc = new Runnable() {
+			public void run() {
+				try{
+					grpcServer.run();
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
 		
-		private ACL acl;
+		Runnable thrift = new Runnable() {
+			public void run() {
+				try{
+					thriftServer.run();
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
 		
-		public ACLServiceImpl(ACL acl){
-			this.acl = acl;
-		}
 		
-	    @Override
-	    public void block(Uids uids, StreamObserver<Empty> responseObserver) {
-	      Empty reply = Empty.newBuilder().build();
-	      
-	      acl.block(uids.getId(), uids.getTargetId());
-	      
-	      responseObserver.onNext(reply);
-	      responseObserver.onCompleted();
-	    }
-	    
-	    @Override
-	    public void unblock(Uids uids, StreamObserver<Empty> responseObserver){
-		      Empty reply = Empty.newBuilder().build();
-		      
-		      acl.unblock(uids.getId(), uids.getTargetId());
-		      
-		      responseObserver.onNext(reply);
-		      responseObserver.onCompleted();
-		}
-	    
-	    @Override
-	    public void blocks(Uid uid, StreamObserver<UidSet> responseObserver){
-	    	
-	    	  
-		      UidSet reply = UidSet.newBuilder().addAllIds(acl.blocks(uid.getId())).build();
-		      
-		      responseObserver.onNext(reply);
-		      responseObserver.onCompleted();
-		}
-	    
-	    @Override
-	    public void blockedBy(Uid uid, StreamObserver<UidSet> responseObserver){
-	    	UidSet reply = UidSet.newBuilder().addAllIds(acl.blockedBy(uid.getId())).build();
-		      
-		      responseObserver.onNext(reply);
-		      responseObserver.onCompleted();
-		}
-
+		new Thread(thrift).start();
+		new Thread(grpc).start();
+			
+		
 	}
 }

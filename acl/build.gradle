@@ -1,13 +1,3 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'war'
-
-
-
-apply plugin: 'com.google.protobuf'
-
 
 buildscript {
     repositories {
@@ -18,6 +8,20 @@ buildscript {
 		classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.1'
     }
 }
+
+plugins {
+	id "org.jruyi.thrift" version "0.4.0"
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+
+
+
+apply plugin: 'com.google.protobuf'
 
 
 
@@ -50,6 +54,9 @@ dependencies {
   	compile "io.grpc:grpc-netty:${grpcVersion}"
   	compile "io.grpc:grpc-protobuf:${grpcVersion}"
  	compile "io.grpc:grpc-stub:${grpcVersion}"
+ 	
+ 	
+	compile group: 'org.apache.thrift', name: 'libthrift', version: '0.9.3'
 
  	 testCompile "io.grpc:grpc-testing:${grpcVersion}"
   	testCompile "junit:junit:4.11"
@@ -81,6 +88,8 @@ protobuf {
     }
   }
 }
+
+
 
 task wrapper(type: Wrapper) {
     description = 'Generates gradlew[.bat] scripts'

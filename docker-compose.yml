@@ -15,6 +15,7 @@ services:
     expose:
      - "8080"
      - "8084"
+     - "9090"
      
   redis:
     image: redis

@@ -72,6 +72,29 @@ RUN set -o errexit -o nounset \
 
 
 
+
+
+
+
+
+
+RUN apk update \
+	&& apk add flex automake autoconf libtool pkgconf bison libssl1.0 libevent-dev gcc g++ make \
+	&& cd /  \
+	&& wget http://archive.apache.org/dist/ant/binaries/apache-ant-1.7.0-bin.tar.gz \
+	&& tar -xvf apache-ant-1.7.0-bin.tar.gz  \
+	&& export PATH=$PATH:/apache-ant-1.7.0/bin \
+	&& wget http://www-eu.apache.org/dist/thrift/0.9.3/thrift-0.9.3.tar.gz \
+	&& tar -xvf thrift-0.9.3.tar.gz \
+	&& cd  thrift-0.9.3/ \
+	&& ./configure \
+	&& make \
+	&& make install
+
+
+
+
+
 ###################
 # Build RetwisJ
 #

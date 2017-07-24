@@ -11,7 +11,14 @@ buildscript {
 		classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.1'
 		
 		///////////////
+		
     }
+}
+
+
+
+plugins {
+	id "org.jruyi.thrift" version "0.4.0"
 }
 
 description = 'Retwis-J'
@@ -25,8 +32,13 @@ apply plugin: 'idea'
 apply plugin: 'war'	
 apply plugin: 'com.google.protobuf'
 
+
+
+
 group = 'org.springframework.data'
 version = "$springDataRedisTwitterVersion"
+
+
 
 /////gRPC////////////////
 def grpcVersion = '1.4.0'
@@ -38,8 +50,10 @@ archivesBaseName = "retwisj"
 
 repositories {
 	mavenCentral()
+	jcenter()
   maven { url "http://repo.springsource.org/libs-snapshot" }
   maven { url "http://repo.springsource.org/plugins-release" }
+  
 }
 
 dependencies {
@@ -57,6 +71,9 @@ dependencies {
     }
 	compile "org.springframework:spring-webmvc:$springVersion"
 	compile "javax.inject:com.springsource.javax.inject:1.0.0"
+	
+	compile group: 'org.apache.thrift', name: 'libthrift', version: '0.9.3'
+	
 	providedCompile "javax.servlet:com.springsource.javax.servlet:2.4.0"
 	providedCompile "javax.servlet:com.springsource.javax.servlet.jsp:2.1.0"
 	compile "javax.servlet:com.springsource.javax.servlet.jsp.jstl:1.2.0"
