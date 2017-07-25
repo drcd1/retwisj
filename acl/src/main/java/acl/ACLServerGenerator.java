@@ -13,15 +13,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ACLServer implements CommandLineRunner {
+public class ACLServerGenerator implements CommandLineRunner {
 	
-	ACLServerGRPC grpcServer;
-	ACLServerThrift thriftServer;
+	private ACLServerGRPC grpcServer;
+	private ACLServerThrift thriftServer;
 	
 	@Autowired
-	ACL acl;
-	
-	
+	private ACL acl;
 	
 	public void run(String... args) throws Exception {
 		

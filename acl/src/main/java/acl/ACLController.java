@@ -3,6 +3,8 @@ package acl;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,13 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RestController
 public class ACLController {
 	
-	@Autowired
-	private final ACL acl;
-	
-	@Autowired
-	public ACLController(ACL acl) {
-		this.acl = acl;
-	}
+	@Inject
+	private ACL acl;
+
 	
 	@RequestMapping(value = "/blocks", method=RequestMethod.GET)
 	public Set<String> blocks(@RequestParam("id") String id){

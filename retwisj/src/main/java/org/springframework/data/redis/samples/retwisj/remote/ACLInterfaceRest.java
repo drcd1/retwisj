@@ -22,6 +22,8 @@ public class ACLInterfaceRest implements ACLInterface{
 	}
 	
 	public Set<String> blockedBy(String uid){
+		if(uid == null)
+			return new HashSet<String>();
 		return rest.getForObject("http://acl:8080/acl/blockedBy?id="+uid, Set.class);
 	}
 	

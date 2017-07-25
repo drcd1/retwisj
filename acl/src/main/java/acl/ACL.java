@@ -13,10 +13,7 @@ public class ACL {
 	
 	private SetOperations<String, String> setOps;
 	
-	private final StringRedisTemplate template;
-	
-
-	
+	private final StringRedisTemplate template;	
 	
 	@Inject
 	public ACL(StringRedisTemplate template){
@@ -36,8 +33,6 @@ public class ACL {
 	void block(String uid, String targetUid){
 		setOps.add(uid + ":block", targetUid);
 		setOps.add(targetUid + ":blockedBy", uid);
-		
-		System.out.println(uid + " block " + targetUid);
 		
 	}
 	void unblock(String uid, String targetUid){

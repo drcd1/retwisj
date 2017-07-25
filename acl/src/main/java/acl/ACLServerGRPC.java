@@ -94,9 +94,7 @@ public class ACLServerGRPC{
 		}
 	    
 	    @Override
-	    public void blocks(Uid uid, StreamObserver<UidSet> responseObserver){
-	    	
-	    	  
+	    public void blocks(Uid uid, StreamObserver<UidSet> responseObserver){ 
 		      UidSet reply = UidSet.newBuilder().addAllIds(acl.blocks(uid.getId())).build();
 		      
 		      responseObserver.onNext(reply);
