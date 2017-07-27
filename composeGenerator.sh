@@ -5,11 +5,6 @@ let port=8080
 
 echo "version: '3'">docker-compose.yml
 echo "services:">>docker-compose.yml
-
-echo "">registry/acl.txt
-echo "">registry/ret.txt
-
-
  
 
 for ((i = 1; i <= $1; i++));
@@ -25,28 +20,25 @@ do
 			if [ ! $j -eq $i ]
 			then
 				acl_links=$acl_links"acl-"$j":"	
-				ret_links=$ret_links"ret-"$j":"
+				ret_links=$ret_links"retwisj-"$j":"
 			fi
 		done
 		
 		acl_links=$acl_links"acl-"$1
-		ret_links=$ret_links"ret-"$1
+		ret_links=$ret_links"retwisj-"$1
 	else 
 		for ((j = 1; j <= ($1-2); j++));
 		do
 			acl_links=$acl_links"acl-"$j":"
-			ret_links=$ret_links"ret-"$j":"			
+			ret_links=$ret_links"retwisj-"$j":"			
 		done
 			
 		acl_links=$acl_links"acl-"$(($1-1))
-		ret_links=$ret_links"ret-"$(($1-1))
+		ret_links=$ret_links"retwisj-"$(($1-1))
 	fi
 	
 	
 	
-	
-	echo "acl-"$i>>registry/acl.txt
-	echo "retwisj-"$i>>registry/ret.txt
 
 	echo "  acl-"$i":                 ">>docker-compose.yml
 	echo "    build: ./acl            ">>docker-compose.yml
@@ -92,9 +84,4 @@ do
 	echo "">>docker-compose.yml
 done                 
 
-echo "">>docker-compose.yml
-echo "  registry:">>docker-compose.yml
-echo "    build: ./registry">>docker-compose.yml
-echo "    expose:">>docker-compose.yml
-echo "      - '5050'">>docker-compose.yml
 

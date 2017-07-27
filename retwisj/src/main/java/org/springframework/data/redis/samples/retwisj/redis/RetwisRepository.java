@@ -128,7 +128,7 @@ public class RetwisRepository {
 		valueOps.set(KeyUtils.user(name), uid);
 
 		users.addFirst(name);
-		Broadcaster.broadcast(uuid);
+		Broadcaster.broadcast();
 		return addAuth(name);
 	}
 	

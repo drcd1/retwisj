@@ -19,45 +19,33 @@ public class Broadcaster{
 	private static HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
 	
 	public static void run(){
-		RegistryHandler handler = new RegistryHandler();
-		RegistryService.Processor<RegistryService.Iface> processor =
-					new RegistryService.Processor<RegistryService.Iface>(handler);
-		try{
-			TServerTransport serverTransport = new TServerSocket(5051);		
-			TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
-			System.out.println("starting server to receive other replicas...");
-			server.serve();
-		} catch (TTransportException e){
-			e.printStackTrace();
+		String retAddr = System.getenv("RET_LINKS");
+		for(String addr: retAddr.split(":")){
+			log(addr);
 		}
-		
 	}
 	
-	static class RegistryHandler implements RegistryService.Iface {
-				
-	    @Override
-	    public void log(String hostAddr) {
-	    	try {
-	    		System.out.println("Will add " + hostAddr);
-				TTransport transport = new TFramedTransport(new TSocket(hostAddr, 5052));
-
-				while(!openTransport(transport)){
-					System.out.println("Sleeping...");
+	public static void log(String hostAddr) {
+	   	try {
+	   		System.out.println("Will add " + hostAddr);
+			TTransport transport = new TFramedTransport(new TSocket(hostAddr, 5052));
+			while(!openTransport(transport)){
+				System.out.println("Sleeping...");
 					
-					TimeUnit.SECONDS.sleep(5);
+				TimeUnit.SECONDS.sleep(5);
 					
-				}
-
-				
-				TProtocol protocol = new TBinaryProtocol(transport);
-				BroadcastService.Client cl = new BroadcastService.Client(protocol);
-				replicas.add(cl);
-				
-				System.out.println("Added " + hostAddr);
-			}catch(Exception e){
-				e.printStackTrace();
 			}
+
+				
+			TProtocol protocol = new TBinaryProtocol(transport);
+			BroadcastService.Client cl = new BroadcastService.Client(protocol);
+			replicas.add(cl);
+			
+			System.out.println("Added " + hostAddr);
+		}catch(Exception e){
+			e.printStackTrace();
 		}
+	
 	   
 	}
 	
@@ -72,10 +60,10 @@ public class Broadcaster{
 	
 	
 	//should return sucess/failure?
-	public static void broadcast(String id){
+	public static void broadcast(){
 		for(BroadcastService.Client cl: replicas){
 			try{
-				cl.send(id + " says hi!" );
+				cl.send(System.getenv("MY_NAME") + " says hi!" );
 			} catch(Exception e){
 				e.printStackTrace();
 			}
