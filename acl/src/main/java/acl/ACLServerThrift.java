@@ -3,6 +3,7 @@ package acl;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.apache.thrift.server.TServer;
@@ -46,6 +47,8 @@ public class ACLServerThrift{
 	
 	static class AclHandler implements AclService.Iface {
 		
+		String id = UUID.randomUUID().toString();
+		
 		private ACL acl;
 		
 		public AclHandler(ACL acl){
@@ -55,6 +58,8 @@ public class ACLServerThrift{
 	    @Override
 	    public void block(String uid, String targetUid) {
 	    	acl.block(uid, targetUid);
+	    	//pings when blocks
+	    	Broadcaster.broadcast(id);
 	    }
 	    
 	    @Override

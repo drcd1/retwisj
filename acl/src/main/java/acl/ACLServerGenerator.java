@@ -45,9 +45,23 @@ public class ACLServerGenerator implements CommandLineRunner {
 			}
 		};
 		
+		Runnable broadcast = new Runnable() {
+			public void run() {
+				Broadcaster.run(); //Broadcaster receives information about other replicas
+			}
+		};
+		
+		Runnable receive = new Runnable() {
+			public void run() {
+				Receiver.run(); //Receiver receives the propagated changes
+			}
+		};
 		
 		new Thread(thrift).start();
 		new Thread(grpc).start();
+		new Thread(broadcast).start();
+		new Thread(receive).start();
+		
 			
 		
 	}

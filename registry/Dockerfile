@@ -1,24 +1,8 @@
 # Pull base image
-FROM tomcat:8-jre8-alpine
+FROM openjdk:8-jdk-alpine
 
 LABEL maintainer="jfloff@inesc-id.pt"
 LABEL maintainer="duartercorreia@tecnico.ulisboa.pt"
-
-###################
-# Install Java 8
-# TAKEN FROM: https://github.com/docker-library/openjdk/blob/master/8-jdk/alpine/Dockerfile
-#
-# Default to UTF-8 file.encoding
-ENV LANG C.UTF-8
-# set JAVA env vars
-ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
-ENV JAVA_VERSION 8u131
-ENV JAVA_ALPINE_VERSION 8.131.11-r2
-ENV PATH $PATH:$JAVA_HOME/jre/bin:$JAVA_HOME/bin
-
-RUN set -x \
-  && apk add --no-cache openjdk8="$JAVA_ALPINE_VERSION"
-
 
 ###################
 # Install Gradle
@@ -26,9 +10,9 @@ RUN set -x \
 #
 
 ENV GRADLE_HOME /opt/gradle
-ENV GRADLE_VERSION 4.0
+ENV GRADLE_VERSION 4.0.1
 
-ARG GRADLE_DOWNLOAD_SHA256=56bd2dde29ba2a93903c557da1745cafd72cdd8b6b0b83c05a40ed7896b79dfe
+ARG GRADLE_DOWNLOAD_SHA256=d717e46200d1359893f891dab047fdab98784143ac76861b53c50dbd03b44fd4
 RUN set -o errexit -o nounset \
 	&& echo "Installing dependencies" \
 	&& apk add --no-cache \
@@ -41,7 +25,14 @@ RUN set -o errexit -o nounset \
 		openssl \
 		unzip \
 	\
+	\
+	&& apk --no-cache add ca-certificates \
+	&& wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub \
+	&& wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk \
+	&& apk add glibc-2.23-r3.apk \
 	&& echo "Downloading Gradle" \
+	\
+	\
 	&& wget -O gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
 	\
 	&& echo "Checking download hash" \
@@ -60,15 +51,40 @@ RUN set -o errexit -o nounset \
 	&& addgroup -S -g 1000 gradle \
 	&& adduser -D -S -G gradle -u 1000 -s /bin/ash gradle \
 	&& mkdir /home/gradle/.gradle \
-	&& chown -R gradle:gradle /home/gradle
+&& chown -R gradle:gradle /home/gradle
 
 
-	
+
+
+
+
+
+
+
+
+RUN apk update \
+	&& apk add flex automake autoconf libtool pkgconf bison libssl1.0 libevent-dev gcc g++ make \
+	&& cd /  \
+	&& wget http://archive.apache.org/dist/ant/binaries/apache-ant-1.7.0-bin.tar.gz \
+	&& tar -xvf apache-ant-1.7.0-bin.tar.gz  \
+	&& export PATH=$PATH:/apache-ant-1.7.0/bin \
+	&& wget http://www-eu.apache.org/dist/thrift/0.9.3/thrift-0.9.3.tar.gz \
+	&& tar -xvf thrift-0.9.3.tar.gz \
+	&& cd  thrift-0.9.3/ \
+	&& ./configure \
+	&& make \
+	&& make install
+
+
+
+
 
 ###################
-# Build acl
+# Build RetwisJ
 #
-WORKDIR /home/acl
-ADD . /home/acl
-RUN gradle build  && \
-    cp build/libs/acl.war /usr/local/tomcat/webapps/
+WORKDIR /home/registry
+ADD . /home/registry
+
+RUN gradle build
+
+CMD gradle run

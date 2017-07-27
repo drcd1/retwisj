@@ -1,27 +1,70 @@
 version: '3'
 services:
-  retwisj:
+  retwisj:          
     build: ./retwisj
-    ports:
-      - "8080:8080"
-    links:
-      - redis
-      - acl
- 
-  acl:
-    build: ./acl
-    links:
-     - redis2
-    expose:
-     - "8080"
-     - "8084"
-     - "9090"
-     
-  redis:
+    ports:          
+      - '8080:8080' 
+    links:          
+      - redis       
+      - acl-2:acl   
+  redis:        
     image: redis
+    expose:     
+      - '6379'  
+  acl-1:             
+    build: ./acl        
+    links:              
+     - redis-1:redis2
+    expose:             
+     - '8080'           
+     - '8084'           
+     - '9090'           
+  redis-1:           
+    image: redis        
+    expose:             
+      - '6379'          
+
+  acl-2:             
+    build: ./acl        
+    links:              
+     - redis-2:redis2
+    expose:             
+     - '8080'           
+     - '8084'           
+     - '9090'           
+  redis-2:           
+    image: redis        
+    expose:             
+      - '6379'          
+
+  acl-3:             
+    build: ./acl        
+    links:              
+     - redis-3:redis2
+    expose:             
+     - '8080'           
+     - '8084'           
+     - '9090'           
+  redis-3:           
+    image: redis        
+    expose:             
+      - '6379'          
+
+  acl-4:             
+    build: ./acl        
+    links:              
+     - redis-4:redis2
+    expose:             
+     - '8080'           
+     - '8084'           
+     - '9090'           
+  redis-4:           
+    image: redis        
+    expose:             
+      - '6379'          
+
+
+  registry:
+    build: ./registry
     expose:
-      - '6379'
-  redis2:
-    image: redis
-    expose:
-      - '6379'
+      - '5050'
