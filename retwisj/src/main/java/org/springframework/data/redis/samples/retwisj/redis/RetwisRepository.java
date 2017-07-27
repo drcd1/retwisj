@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BulkMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -58,6 +59,7 @@ import org.springframework.data.redis.support.collections.RedisMap;
 import org.springframework.data.redis.support.collections.RedisSet;
 import org.springframework.util.StringUtils;
 
+
 /**
  * Twitter-clone on top of Redis.
  * 
@@ -65,6 +67,8 @@ import org.springframework.util.StringUtils;
  */
 @Named
 public class RetwisRepository {
+	
+	private static final String uuid = UUID.randomUUID().toString();
 
 	private static final Pattern MENTION_REGEX = Pattern.compile("@[\\w]+");
 
@@ -95,6 +99,22 @@ public class RetwisRepository {
 		userIdCounter = new RedisAtomicLong(KeyUtils.globalUid(), template.getConnectionFactory());
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
 		blocked_by = new HashSet<String>();
+		
+		Runnable broadcast = new Runnable() {
+			public void run() {
+				Broadcaster.run(); //Broadcaster receives information about other replicas
+			}
+		};
+		
+		Runnable receive = new Runnable() {
+			public void run() {
+				Receiver.run(); //Receiver receives the propagated changes
+			}
+		};
+		
+		new Thread(broadcast).start();
+		new Thread(receive).start();
+	
 	}
 
 	public String addUser(String name, String password) {
@@ -108,6 +128,7 @@ public class RetwisRepository {
 		valueOps.set(KeyUtils.user(name), uid);
 
 		users.addFirst(name);
+		Broadcaster.broadcast(uuid);
 		return addAuth(name);
 	}
 	
