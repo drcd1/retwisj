@@ -8,6 +8,9 @@ services:
      - '8080'               
      - '8084'               
      - '9090'               
+    environment:                 
+      - ACL_LINKS=acl-2:acl-3:acl-4
+      - MY_NAME=acl-1
   redis-acl-1:           
     image: redis            
     expose:                 
@@ -19,6 +22,9 @@ services:
     links:                   
       - redis-ret-1:redis 
       - acl-1:acl         
+    environment:                 
+      - RET_LINKS=ret-2:ret-3:ret-4
+      - MY_NAME=acl-1
   redis-ret-1:
     image: redis 
     expose:      
@@ -32,6 +38,9 @@ services:
      - '8080'               
      - '8084'               
      - '9090'               
+    environment:                 
+      - ACL_LINKS=acl-1:acl-3:acl-4
+      - MY_NAME=acl-2
   redis-acl-2:           
     image: redis            
     expose:                 
@@ -43,6 +52,9 @@ services:
     links:                   
       - redis-ret-2:redis 
       - acl-2:acl         
+    environment:                 
+      - RET_LINKS=ret-1:ret-3:ret-4
+      - MY_NAME=acl-2
   redis-ret-2:
     image: redis 
     expose:      
@@ -56,6 +68,9 @@ services:
      - '8080'               
      - '8084'               
      - '9090'               
+    environment:                 
+      - ACL_LINKS=acl-1:acl-2:acl-4
+      - MY_NAME=acl-3
   redis-acl-3:           
     image: redis            
     expose:                 
@@ -67,6 +82,9 @@ services:
     links:                   
       - redis-ret-3:redis 
       - acl-3:acl         
+    environment:                 
+      - RET_LINKS=ret-1:ret-2:ret-4
+      - MY_NAME=acl-3
   redis-ret-3:
     image: redis 
     expose:      
@@ -80,6 +98,9 @@ services:
      - '8080'               
      - '8084'               
      - '9090'               
+    environment:                 
+      - ACL_LINKS=acl-1:acl-2:acl-3
+      - MY_NAME=acl-4
   redis-acl-4:           
     image: redis            
     expose:                 
@@ -91,6 +112,9 @@ services:
     links:                   
       - redis-ret-4:redis 
       - acl-4:acl         
+    environment:                 
+      - RET_LINKS=ret-1:ret-2:ret-3
+      - MY_NAME=acl-4
   redis-ret-4:
     image: redis 
     expose:      

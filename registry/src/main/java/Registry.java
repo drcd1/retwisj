@@ -15,59 +15,9 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
 public class Registry{
-	private static HashSet<String> aclAddrs = new HashSet<String>();
 	private static HashSet<String> retAddrs = new HashSet<String>();
 	
 	public static void main(String[] args){
-		try {
-			BufferedReader r = new BufferedReader(new FileReader("acl.txt"));
-			String currentLine;
-			while ((currentLine = r.readLine()) != null) {
-				if(!currentLine.isEmpty()){
-					aclAddrs.add(currentLine);
-				}
-			}
-			
-			if(r!=null){
-				r.close();
-			}
-		} catch (IOException e){
-			e.printStackTrace();
-		}
-		
-		for(String hostAddr: aclAddrs){
-			System.out.println("Registering " + hostAddr + "..." );
-		
-			TTransport transport = new TSocket(hostAddr, 5051);
-			
-			TProtocol protocol = new TBinaryProtocol(transport);
-			RegistryService.Client cl = new RegistryService.Client(protocol);
-			
-			
-			while(!openTransport(transport)){
-				System.out.println("Sleeping...");
-				try{
-					TimeUnit.SECONDS.sleep(5);
-				} catch (InterruptedException e){
-					e.printStackTrace();
-				}
-			}
-			
-			for(String addr: aclAddrs){
-				if(addr != hostAddr){
-					try{
-						cl.log(addr);
-					} catch (Exception e){
-						e.printStackTrace();
-					}
-				}
-			}
-			
-			transport.close();
-			System.out.println("Registered " + hostAddr);
-		}
-		
-		
 		try {
 			BufferedReader r2 = new BufferedReader(new FileReader("ret.txt"));
 			String currentLine;

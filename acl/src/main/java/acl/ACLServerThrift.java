@@ -59,7 +59,7 @@ public class ACLServerThrift{
 	    public void block(String uid, String targetUid) {
 	    	acl.block(uid, targetUid);
 	    	//pings when blocks
-	    	Broadcaster.broadcast(id);
+	    	Broadcaster.broadcast();
 	    }
 	    
 	    @Override
