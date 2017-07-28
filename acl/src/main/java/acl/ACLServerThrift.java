@@ -1,6 +1,8 @@
 package acl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -12,6 +14,9 @@ import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
+
+
+import acl.command.Command;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -57,19 +62,22 @@ public class ACLServerThrift{
 		
 	    @Override
 	    public void block(String uid, String targetUid) {
-	    	acl.block(uid, targetUid);
-	    	//pings when blocks
-	    	Broadcaster.broadcast();
+	    	acl.block(uid, targetUid); 
+	    	Broadcaster.broadcast(new BroadcastCommand(Command.Type.BLOCK.ordinal(), 
+					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
 	    @Override
 	    public void unblock(String uid, String targetUid) {
 	    	acl.unblock(uid, targetUid);
+	    	Broadcaster.broadcast(new BroadcastCommand(Command.Type.UNBLOCK.ordinal(), 
+					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
 	    @Override
 	    public Set<String> blocks(String uid) {
 	    	Set<String> blocks = acl.blocks(uid);
+	    	
 	    	return blocks;
 	    }
 	    

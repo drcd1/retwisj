@@ -60,10 +60,10 @@ public class Broadcaster{
 	
 	
 	//should return sucess/failure?
-	public static void broadcast(){
+	public static void broadcast(BroadcastCommand cmd){
 		for(BroadcastService.Client cl: replicas){
 			try{
-				cl.send(System.getenv("MY_NAME") + " says hi!" );
+				cl.send(cmd);
 			} catch(Exception e){
 				e.printStackTrace();
 			}

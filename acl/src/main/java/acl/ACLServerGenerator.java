@@ -53,7 +53,7 @@ public class ACLServerGenerator implements CommandLineRunner {
 		
 		Runnable receive = new Runnable() {
 			public void run() {
-				Receiver.run(); //Receiver receives the propagated changes
+				Receiver.run(acl); //Receiver receives the propagated changes
 			}
 		};
 		

@@ -8,12 +8,19 @@ import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
+import acl.command.CommandFactory;
+
 public class Receiver{
 	
-	public static void run(){
+	private static ACL acl;
+	
+	public static void run(ACL otherAcl){
+		acl = otherAcl;
+		
 		BroadcastHandler handler = new BroadcastHandler();
 		BroadcastService.Processor<BroadcastService.Iface> processor =
 					new BroadcastService.Processor<BroadcastService.Iface>(handler);
+		
 		try{
 			TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(5052);
 			TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(processor));
@@ -26,11 +33,14 @@ public class Receiver{
 	}
 	
 	static class BroadcastHandler implements BroadcastService.Iface {
-				
 	    @Override
-	    public void send(String msg) {
-			System.out.println(msg);
-		}
+	    public void send(BroadcastCommand cmd) {
+	    	try{
+	    		acl.execute(CommandFactory.get(cmd));
+	    	} catch (Exception e){
+	    		e.printStackTrace();
+	    	}
+	    }
 	   
 	}
 }
