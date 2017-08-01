@@ -15,6 +15,8 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
+import acl.command.*;
+
 public class Broadcaster{
 	private static HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
 	

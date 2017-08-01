@@ -8,7 +8,7 @@ import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
-import acl.command.CommandFactory;
+import acl.command.*;
 
 public class Receiver{
 	

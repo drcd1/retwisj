@@ -16,7 +16,7 @@ import org.apache.thrift.transport.TServerTransport;
 
 
 
-import acl.command.Command;
+import acl.command.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -63,14 +63,14 @@ public class ACLServerThrift{
 	    @Override
 	    public void block(String uid, String targetUid) {
 	    	acl.block(uid, targetUid); 
-	    	Broadcaster.broadcast(new BroadcastCommand(Command.Type.BLOCK.ordinal(), 
+	    	Broadcaster.broadcast(new BroadcastCommand(CommandType.BLOCK, 
 					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
 	    @Override
 	    public void unblock(String uid, String targetUid) {
 	    	acl.unblock(uid, targetUid);
-	    	Broadcaster.broadcast(new BroadcastCommand(Command.Type.UNBLOCK.ordinal(), 
+	    	Broadcaster.broadcast(new BroadcastCommand(CommandType.UNBLOCK, 
 					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
