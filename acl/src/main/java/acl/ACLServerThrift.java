@@ -77,7 +77,6 @@ public class ACLServerThrift{
 	    @Override
 	    public Set<String> blocks(String uid) {
 	    	Set<String> blocks = acl.blocks(uid);
-	    	
 	    	return blocks;
 	    }
 	    

@@ -15,6 +15,8 @@
  */
 package org.springframework.data.redis.samples.retwisj.web;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
+import org.springframework.data.redis.samples.retwisj.Receiver;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
+import org.springframework.data.redis.samples.retwisj.Broadcaster;
+import org.springframework.data.redis.samples.retwisj.Receiver;
+import org.springframework.data.redis.samples.retwisj.command.*;
 import org.springframework.data.redis.samples.retwisj.redis.RetwisRepository;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
@@ -40,6 +46,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 /**
  * Annotation-driven controller for Retwis.
@@ -58,6 +66,7 @@ public class RetwisController {
 	public RetwisController(RetwisRepository twitter) {
 		this.retwis = twitter;
 		acl = new ACLInterfaceThrift();
+				
 		System.out.println("generatedController..");
 	}
 
@@ -83,6 +92,12 @@ public class RetwisController {
 
 		String auth = retwis.addUser(name, pass);
 		addAuthCookie(auth, name, response);
+		
+		Broadcaster.broadcast(new BroadcastCommand(CommandType.ADD_USER, 
+				new ArrayList<String>(Arrays.asList(name, pass))));
+		
+		System.out.println("Broadcasting: adding user:" + name);
+		
 
 		return "redirect:/!" + name;
 	}
@@ -92,6 +107,12 @@ public class RetwisController {
 		// add tracing cookie
 		if (retwis.auth(name, pass)) {
 			addAuthCookie(retwis.addAuth(name), name, response);
+			Broadcaster.broadcast(new BroadcastCommand(CommandType.ADD_AUTH, 
+					new ArrayList<String>(Arrays.asList(name))));	
+			
+
+			System.out.println("Broadcasting: adding auth: " + name);
+			
 			return "redirect:/!" + name;
 		}
 		else if (StringUtils.hasText(name) || StringUtils.hasText(pass)) {
@@ -156,6 +177,31 @@ public class RetwisController {
 	public String posts(@PathVariable String name, WebPost post, Model model, HttpServletRequest request) {
 		checkUser(name);
 		retwis.post(name, post);
+		
+		
+		
+		Broadcaster.broadcast(new BroadcastCommand(CommandType.POST, 
+				new ArrayList<String>(Arrays.asList(name, 
+													post.getContent() != null ? post.getContent(): "",
+													post.getName() != null ? post.getName(): "",
+													post.getReplyTo() != null ? post.getReplyTo(): "",
+													post.getReplyPid() != null ? post.getReplyPid(): "",
+													post.getPid() != null ? post.getPid(): "",
+													post.getTime() != null ? post.getTime(): "",
+													post.getTimeArg() != null ? post.getTimeArg(): "")						
+													)));	
+		
+		System.out.println("Broadcasting: post by " + name);
+		System.out.println("Posting: " + name + " posts the following: ");
+		System.out.println("  content: " + post.getContent());
+		System.out.println("  name:    " + post.getName()) ;
+		System.out.println("  Reply to:"+post.getReplyTo());
+		System.out.println("  ReplyPid:"+post.getReplyPid()); 
+		System.out.println("  pid:     "+post.getPid());
+		System.out.println("  time:    "+post.getTime());
+		System.out.println("  timeArg: " +post.getTimeArg());
+		
+		
 		return "redirect:/!" + name;
 	}
 	
@@ -174,14 +220,28 @@ public class RetwisController {
 	@RequestMapping("/!{name}/follow")
 	public String follow(@PathVariable String name) {
 		checkUser(name);
-		retwis.follow(name);
+		retwis.follow(RetwisSecurity.getUid(), name);
+		Broadcaster.broadcast(new BroadcastCommand(CommandType.FOLLOW, 
+				new ArrayList<String>(Arrays.asList(RetwisSecurity.getUid(), name))));
+		
+		System.out.println("Broadcasting: following: " + name);
+		
+		
+		
+		
 		return "redirect:/!" + name;
 	}
 
 	@RequestMapping("/!{name}/stopfollowing")
 	public String stopFollowing(@PathVariable String name) {
 		checkUser(name);
-		retwis.stopFollowing(name);
+		retwis.stopFollowing(RetwisSecurity.getUid(), name);
+		
+		Broadcaster.broadcast(new BroadcastCommand(CommandType.STOP_FOLLOWING, 
+				new ArrayList<String>(Arrays.asList(RetwisSecurity.getUid(), name))));	
+		System.out.println("Broadcasting: stop following: " + name);
+		
+		
 		return "redirect:/!" + name;
 	}
 
@@ -228,6 +288,13 @@ public class RetwisController {
 		String user = RetwisSecurity.getName();
 		// invalidate auth
 		retwis.deleteAuth(user);
+		
+		Broadcaster.broadcast(new BroadcastCommand(CommandType.DELETE_AUTH, 
+				new ArrayList<String>(Arrays.asList(user))));	
+		System.out.println("Broadcasting: delete_auth " + user);
+		
+		
+		
 		return "redirect:/";
 	}
 

@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BulkMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -43,8 +42,11 @@ import org.springframework.data.redis.core.query.SortQueryBuilder;
 import org.springframework.data.redis.hash.DecoratingStringHashMapper;
 import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.data.redis.hash.JacksonHashMapper;
+import org.springframework.data.redis.samples.retwisj.command.Command;
+import org.springframework.data.redis.samples.retwisj.Broadcaster;
 import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
+import org.springframework.data.redis.samples.retwisj.Receiver;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
@@ -60,6 +62,7 @@ import org.springframework.data.redis.support.collections.RedisSet;
 import org.springframework.util.StringUtils;
 
 
+
 /**
  * Twitter-clone on top of Redis.
  * 
@@ -67,8 +70,6 @@ import org.springframework.util.StringUtils;
  */
 @Named
 public class RetwisRepository {
-	
-	private static final String uuid = UUID.randomUUID().toString();
 
 	private static final Pattern MENTION_REGEX = Pattern.compile("@[\\w]+");
 
@@ -100,20 +101,7 @@ public class RetwisRepository {
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
 		blocked_by = new HashSet<String>();
 		
-		Runnable broadcast = new Runnable() {
-			public void run() {
-				Broadcaster.run(); //Broadcaster receives information about other replicas
-			}
-		};
 		
-		Runnable receive = new Runnable() {
-			public void run() {
-				Receiver.run(); //Receiver receives the propagated changes
-			}
-		};
-		
-		new Thread(broadcast).start();
-		new Thread(receive).start();
 	
 	}
 
@@ -128,7 +116,6 @@ public class RetwisRepository {
 		valueOps.set(KeyUtils.user(name), uid);
 
 		users.addFirst(name);
-		Broadcaster.broadcast();
 		return addAuth(name);
 	}
 	
@@ -284,18 +271,18 @@ public class RetwisRepository {
 		return following(uid).contains(targetUid);
 	}
 
-	public void follow(String targetUser) {
+	public void follow(String uid, String targetUser) {
 		String targetUid = findUid(targetUser);
 
-		following(RetwisSecurity.getUid()).add(targetUid);
-		followers(targetUid).add(RetwisSecurity.getUid());
+		following(uid).add(targetUid);
+		followers(targetUid).add(uid);
 	}
 
-	public void stopFollowing(String targetUser) {
+	public void stopFollowing(String uid, String targetUser) {
 		String targetUid = findUid(targetUser);
 
-		following(RetwisSecurity.getUid()).remove(targetUid);
-		followers(targetUid).remove(RetwisSecurity.getUid());
+		following(uid).remove(targetUid);
+		followers(targetUid).remove(uid);
 	}
 
 	public List<String> alsoFollowed(String uid, String targetUid) {
@@ -429,5 +416,9 @@ public class RetwisRepository {
 		}
 
 		return mentions;
+	}
+	
+	public void execute(Command cmd){
+		cmd.run(this);
 	}
 }

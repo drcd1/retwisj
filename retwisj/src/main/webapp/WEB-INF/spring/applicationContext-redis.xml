@@ -13,7 +13,9 @@
 	
 	<context:annotation-config />
 
+	<!--
 	<context:component-scan base-package="org.springframework.data.redis.samples"/>
+	-->
 
 	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate" 
 		p:connection-factory-ref="connectionFactory"/>

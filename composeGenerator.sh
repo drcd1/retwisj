@@ -80,7 +80,7 @@ do
     echo "      - acl-"${zone_list[$i]}":acl         ">>docker-compose.yml
     echo "    environment:                 ">>docker-compose.yml    
     echo "      - RET_LINKS="$ret_links>>docker-compose.yml
-    echo "      - MY_NAME=acl-"${zone_list[$i]}>>docker-compose.yml
+    echo "      - MY_NAME=retwisj-"${zone_list[$i]}>>docker-compose.yml
  
 
     echo "  redis-ret-"${zone_list[$i]}":">>docker-compose.yml

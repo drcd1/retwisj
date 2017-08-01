@@ -34,6 +34,23 @@ public class WebPost {
 
 	public WebPost() {
 	}
+	
+	public WebPost(String content, 
+					String name, 
+					String replyTo, 
+					String replyPid, 
+					String pid, 
+					String time, 
+					String timeArg) {
+		this.content = content;
+		this.name = name;
+		this.replyTo = replyTo;
+		this.replyPid = replyPid;
+		this.pid = pid;
+		this.time = time;
+		this.timeArg = timeArg;
+	}
+	
 
 	public WebPost(Post post) {
 

@@ -1,7 +1,9 @@
-package org.springframework.data.redis.samples.retwisj.redis;
+package org.springframework.data.redis.samples.retwisj;
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.samples.retwisj.command.*;
 
 import org.apache.thrift.server.TServer.Args;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -25,13 +27,14 @@ public class Broadcaster{
 		}
 	}
 	
+
 	public static void log(String hostAddr) {
-	   	try {
-	   		System.out.println("Will add " + hostAddr);
+		try {
+			System.out.println("Will add " + hostAddr);
 			TTransport transport = new TFramedTransport(new TSocket(hostAddr, 5052));
 			while(!openTransport(transport)){
 				System.out.println("Sleeping...");
-					
+				
 				TimeUnit.SECONDS.sleep(5);
 					
 			}
@@ -40,14 +43,13 @@ public class Broadcaster{
 			TProtocol protocol = new TBinaryProtocol(transport);
 			BroadcastService.Client cl = new BroadcastService.Client(protocol);
 			replicas.add(cl);
-			
+				
 			System.out.println("Added " + hostAddr);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-	
-	   
 	}
+	  
 	
 	private static boolean openTransport(TTransport transport){
 		try{
@@ -60,10 +62,10 @@ public class Broadcaster{
 	
 	
 	//should return sucess/failure?
-	public static void broadcast(){
+	public static void broadcast(BroadcastCommand cmd){
 		for(BroadcastService.Client cl: replicas){
 			try{
-				cl.send(System.getenv("MY_NAME") + " says hi!" );
+				cl.send(cmd);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
