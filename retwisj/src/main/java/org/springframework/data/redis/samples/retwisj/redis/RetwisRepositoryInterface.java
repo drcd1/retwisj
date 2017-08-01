@@ -83,10 +83,11 @@ public class RetwisRepositoryInterface {
 	}
 
 	public String addUser(String name, String password) {
-		String ret = retwis.addUser(name, password);
+		retwis.addUser(name, password);
 		Broadcaster.broadcast(new BroadcastCommand(CommandType.ADD_USER, 
 				new ArrayList<String>(Arrays.asList(name, password))));
-		return ret;
+		
+		return addAuth(name);
 	}
 		
 	public void setBlocked(Set<String> blocked){
@@ -181,22 +182,11 @@ public class RetwisRepositoryInterface {
 	}
 
 	public String addAuth(String name) {
-		String ret = retwis.addAuth(name);
-		Broadcaster.broadcast(new BroadcastCommand(CommandType.ADD_AUTH, 
-				new ArrayList<String>(Arrays.asList(name))));	
-	
-		System.out.println("Broadcasting: adding auth: " + name);
-		
-		return ret;		
+		return retwis.addAuth(name);	
 	}
 
 	public void deleteAuth(String user) {
 		retwis.deleteAuth(user);
-		
-		Broadcaster.broadcast(new BroadcastCommand(CommandType.DELETE_AUTH, 
-				new ArrayList<String>(Arrays.asList(user))));	
-		System.out.println("Broadcasting: delete_auth " + user);
-
 	}
 
 	public boolean hasMorePosts(String targetUid, Range range) {

@@ -105,7 +105,7 @@ public class RetwisRepository {
 	
 	}
 
-	public String addUser(String name, String password) {
+	public void addUser(String name, String password) {
 		String uid = String.valueOf(userIdCounter.incrementAndGet());
 
 		// save user as hash
@@ -116,7 +116,6 @@ public class RetwisRepository {
 		valueOps.set(KeyUtils.user(name), uid);
 
 		users.addFirst(name);
-		return addAuth(name);
 	}
 	
 	public void setBlocked(Set<String> blocked){
