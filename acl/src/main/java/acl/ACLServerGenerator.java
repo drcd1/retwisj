@@ -19,7 +19,7 @@ public class ACLServerGenerator implements CommandLineRunner {
 	private ACLServerThrift thriftServer;
 	
 	@Autowired
-	private ACL acl;
+	private ACLInterface acl;
 	
 	public void run(String... args) throws Exception {
 		
@@ -53,7 +53,7 @@ public class ACLServerGenerator implements CommandLineRunner {
 		
 		Runnable receive = new Runnable() {
 			public void run() {
-				Receiver.run(acl); //Receiver receives the propagated changes
+				Receiver.run(acl.getACL()); //Receiver receives the propagated changes
 			}
 		};
 		

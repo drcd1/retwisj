@@ -38,6 +38,7 @@ public class ACL {
 	public void block(String uid, String targetUid){
 		setOps.add(uid + ":block", targetUid);
 		setOps.add(targetUid + ":blockedBy", uid);
+		
 	}
 	public void unblock(String uid, String targetUid){
 		setOps.remove(uid + ":block", targetUid);

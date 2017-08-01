@@ -20,9 +20,9 @@ public class ACLServerGRPC{
 	private Server server;
 	
 	
-	private ACL acl;
+	private ACLInterface acl;
 	
-	public ACLServerGRPC(ACL acl) {
+	public ACLServerGRPC(ACLInterface acl) {
 		this.acl = acl;
 	}
 	
@@ -67,9 +67,9 @@ public class ACLServerGRPC{
 	
 	static class ACLServiceImpl extends ACLServiceGrpc.ACLServiceImplBase {
 		
-		private ACL acl;
+		private ACLInterface acl;
 		
-		public ACLServiceImpl(ACL acl){
+		public ACLServiceImpl(ACLInterface acl){
 			this.acl = acl;
 		}
 		

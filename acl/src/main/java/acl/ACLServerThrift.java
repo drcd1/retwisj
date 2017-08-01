@@ -29,9 +29,12 @@ public class ACLServerThrift{
 
 	public static AclService.Processor<AclService.Iface> processor;
 	
-	private ACL acl;
+	private ACLInterface acl;
 	
-	public ACLServerThrift(ACL acl) {
+	public ACLServerThrift(ACLInterface acl) {
+		if(acl == null){
+			System.out.println("I am null!");
+		}
 		this.acl = acl;
 	}
 	
@@ -54,24 +57,20 @@ public class ACLServerThrift{
 		
 		String id = UUID.randomUUID().toString();
 		
-		private ACL acl;
+		private ACLInterface acl;
 		
-		public AclHandler(ACL acl){
+		public AclHandler(ACLInterface acl){
 			this.acl = acl;
 		}
 		
 	    @Override
 	    public void block(String uid, String targetUid) {
 	    	acl.block(uid, targetUid); 
-	    	Broadcaster.broadcast(new BroadcastCommand(CommandType.BLOCK, 
-					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
 	    @Override
 	    public void unblock(String uid, String targetUid) {
 	    	acl.unblock(uid, targetUid);
-	    	Broadcaster.broadcast(new BroadcastCommand(CommandType.UNBLOCK, 
-					new ArrayList<String>(Arrays.asList(uid, targetUid))));	
 	    }
 	    
 	    @Override

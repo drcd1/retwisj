@@ -15,9 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RestController
 public class ACLController {
 	
-	@Inject
-	private ACL acl;
-
+	@Autowired
+	private ACLInterface acl;
 	
 	@RequestMapping(value = "/blocks", method=RequestMethod.GET)
 	public Set<String> blocks(@RequestParam("id") String id){
