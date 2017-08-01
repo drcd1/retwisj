@@ -12,13 +12,13 @@ public class PostCommand extends Command {
 	
 	public PostCommand(List<String> args){
 		name = args.get(0);
-		post = new WebPost(	args.get(1).isEmpty() ? null : args.get(1), 
-							args.get(2).isEmpty() ? null : args.get(2),
-							args.get(3).isEmpty() ? null : args.get(3),
-							args.get(4).isEmpty() ? null : args.get(4),
-							args.get(5).isEmpty() ? null : args.get(5),
-							args.get(6).isEmpty() ? null : args.get(6),
-							args.get(7).isEmpty() ? null : args.get(7));
+		post = new WebPost(	args.get(1), 
+							args.get(2),
+							args.get(3),
+							args.get(4),
+							args.get(5),
+							args.get(6),
+							args.get(7));
 		
 	}
 
