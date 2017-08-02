@@ -17,6 +17,8 @@ import acl.command.*;
 import acl.replication.Broadcaster;
 import acl.replication.BroadcasterThrift;
 
+import acl.replication.BroadcasterRest;
+
 @Named
 public class ACLInterface {
 	
@@ -27,7 +29,7 @@ public class ACLInterface {
 	public ACLInterface(ACL acl){
 		this.acl = acl;
 		
-		broadcaster = new BroadcasterThrift();
+		broadcaster = new BroadcasterRest();
 	}
 	
 	public Set<String> blocks(String uid){

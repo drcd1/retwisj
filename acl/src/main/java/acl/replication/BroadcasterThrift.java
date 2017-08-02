@@ -22,6 +22,7 @@ public class BroadcasterThrift extends Broadcaster {
 
 	private HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
 	
+	
 	private void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
@@ -69,10 +70,9 @@ public class BroadcasterThrift extends Broadcaster {
 		}
 	}
 	
-	public void initialize(){
-		String retAddr = System.getenv("ACL_LINKS");
+	public void initialize(){		String retAddr = System.getenv("ACL_LINKS");
 		for(String addr: retAddr.split(":")){
 			log(addr);
-		}
+		}		
 	}
 }
