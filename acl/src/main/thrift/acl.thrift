@@ -1,4 +1,4 @@
-namespace java acl
+namespace java acl.server
 
 service AclService{
 	 void block(1:string id, 2: string targetId),

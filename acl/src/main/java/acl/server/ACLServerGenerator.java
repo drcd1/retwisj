@@ -1,4 +1,4 @@
-package acl;
+package acl.server;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -11,6 +11,9 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import acl.replication.Broadcaster;
+import acl.replication.Receiver;
 
 @Component
 public class ACLServerGenerator implements CommandLineRunner {
@@ -45,12 +48,6 @@ public class ACLServerGenerator implements CommandLineRunner {
 			}
 		};
 		
-		Runnable broadcast = new Runnable() {
-			public void run() {
-				Broadcaster.run(); //Broadcaster receives information about other replicas
-			}
-		};
-		
 		Runnable receive = new Runnable() {
 			public void run() {
 				Receiver.run(acl.getACL()); //Receiver receives the propagated changes
@@ -59,10 +56,9 @@ public class ACLServerGenerator implements CommandLineRunner {
 		
 		new Thread(thrift).start();
 		new Thread(grpc).start();
-		new Thread(broadcast).start();
 		new Thread(receive).start();
 		
-			
+		acl.initializeBroadcaster();			
 		
 	}
 }

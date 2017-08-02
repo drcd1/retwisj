@@ -1,4 +1,4 @@
-package acl;
+package acl.replication;
 
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
@@ -8,6 +8,7 @@ import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
+import acl.ACL;
 import acl.command.*;
 
 public class Receiver{
@@ -36,7 +37,11 @@ public class Receiver{
 	    @Override
 	    public void send(BroadcastCommand cmd) {
 	    	try{
-	    		acl.execute(CommandFactory.get(cmd));
+	    		acl.execute(CommandFactory.get(new CommandData(CommandData.getTypeFromInt(
+	    															cmd.getCmd()),
+	    															cmd.getArguments())
+	    									)
+	    		);
 	    	} catch (Exception e){
 	    		e.printStackTrace();
 	    	}

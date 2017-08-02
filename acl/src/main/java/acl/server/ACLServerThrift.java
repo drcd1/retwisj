@@ -1,4 +1,4 @@
-package acl;
+package acl.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,8 +13,6 @@ import org.apache.thrift.server.TServer.Args;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
-
-
 
 import acl.command.*;
 

@@ -5,11 +5,6 @@ service BroadcastService{
 }
 
 struct BroadcastCommand{
-	1: CommandType cmd,
+	1: i32 cmd,
 	2: list<string> arguments,
-}
-
-enum CommandType{
-	BLOCK,
-	UNBLOCK
 }
