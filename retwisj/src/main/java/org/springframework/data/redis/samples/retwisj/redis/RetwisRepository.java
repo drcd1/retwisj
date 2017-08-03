@@ -43,10 +43,8 @@ import org.springframework.data.redis.hash.DecoratingStringHashMapper;
 import org.springframework.data.redis.hash.HashMapper;
 import org.springframework.data.redis.hash.JacksonHashMapper;
 import org.springframework.data.redis.samples.retwisj.command.Command;
-import org.springframework.data.redis.samples.retwisj.Broadcaster;
 import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
-import org.springframework.data.redis.samples.retwisj.Receiver;
 import org.springframework.data.redis.samples.retwisj.RetwisSecurity;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterface;
 import org.springframework.data.redis.samples.retwisj.remote.ACLInterfaceDummy;
@@ -100,9 +98,6 @@ public class RetwisRepository {
 		userIdCounter = new RedisAtomicLong(KeyUtils.globalUid(), template.getConnectionFactory());
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
 		blocked_by = new HashSet<String>();
-		
-		
-	
 	}
 
 	public void addUser(String name, String password) {

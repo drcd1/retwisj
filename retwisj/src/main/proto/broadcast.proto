@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.springframework.data.redis.samples.retwisj.command";
+option java_outer_classname = "RetCommand";
+option objc_class_prefix = "RetC";
+
+package org.springframework.data.redis.samples.retwisj.command;
+
+// Interface exported by the server.
+service BroadcastService {
+  rpc send(BroadcastCommandGrpc) returns (Empty) {}
+}
+
+
+message BroadcastCommandGrpc {
+	int32 cmd = 1;
+	repeated string arguments = 2;
+}
+
+message Empty {
+
+}

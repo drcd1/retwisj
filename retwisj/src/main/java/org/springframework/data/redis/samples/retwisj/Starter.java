@@ -4,31 +4,46 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.samples.retwisj.redis.RetwisRepository;
+import org.springframework.data.redis.samples.retwisj.redis.RetwisRepositoryInterface;
+import org.springframework.data.redis.samples.retwisj.replication.Broadcaster;
+import org.springframework.data.redis.samples.retwisj.replication.ReceiverGrpc;
+import org.springframework.data.redis.samples.retwisj.replication.ReceiverThrift;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Starter{
-		
+
+	
 	@Autowired
-	private RetwisRepository retwis;
+	private RetwisRepositoryInterface retwis;
 	
 	@PostConstruct
 	public void run() throws Exception {
 		System.out.println("starting...");
-		Runnable broadcast = new Runnable() {
+		
+		ReceiverThrift.setRetwis(retwis.getRetwis());
+		ReceiverGrpc.setRetwis(retwis.getRetwis());
+				
+		Runnable receiveThrift = new Runnable() {
 			public void run() {
-				Broadcaster.run(); //Broadcaster receives information about other replicas
+				ReceiverThrift.run(); //Receiver receives the propagated changes
 			}
 		};
 		
-		Runnable receive = new Runnable() {
+		Runnable receiveGrpc = new Runnable() {
 			public void run() {
-				Receiver.run(retwis); //Receiver receives the propagated changes
-			}
+				try{
+					ReceiverGrpc.run(); //Receiver receives the propagated changes
+				} catch (Exception e){
+					e.printStackTrace();
+				}
+			}	
 		};
 		
-		new Thread(broadcast).start();
-		new Thread(receive).start();
+		new Thread(receiveThrift).start();
+		new Thread(receiveGrpc).start();
+		
+		retwis.initializeBroadcaster();
 	}
 }
 

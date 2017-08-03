@@ -4,7 +4,7 @@ package org.springframework.data.redis.samples.retwisj.command;
 
 public class CommandFactory {
 		
-	public static Command get(BroadcastCommand cmd) throws Exception{
+	public static Command get(CommandData cmd) throws Exception{
 		switch(cmd.getCmd()){
 		case ADD_USER:
 			return new AddUserCommand(cmd.getArguments());
@@ -20,10 +20,6 @@ public class CommandFactory {
 			return new DeleteAuthCommand(cmd.getArguments());
 		default:
 			throw new Exception(); //should not happen
-		
-		
-		
-		
 		
 		}
 	}

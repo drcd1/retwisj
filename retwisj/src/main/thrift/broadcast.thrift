@@ -5,15 +5,6 @@ service BroadcastService{
 }
 
 struct BroadcastCommand{
-	1: CommandType cmd,
+	1: i32 cmd,
 	2: list<string> arguments,
-}
-
-enum CommandType{
-	ADD_USER,
-	POST,
-	FOLLOW,
-	STOP_FOLLOWING,
-	ADD_AUTH,
-	DELETE_AUTH
 }

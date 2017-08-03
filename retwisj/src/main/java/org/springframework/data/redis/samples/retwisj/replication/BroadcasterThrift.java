@@ -1,9 +1,8 @@
-package org.springframework.data.redis.samples.retwisj;
+package org.springframework.data.redis.samples.retwisj.replication;
+
 import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.data.redis.samples.retwisj.command.*;
 
 import org.apache.thrift.server.TServer.Args;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -17,18 +16,14 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
-public class Broadcaster{
-	private static HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
-	
-	public static void run(){
-		String retAddr = System.getenv("RET_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}
-	}
-	
+import org.springframework.data.redis.samples.retwisj.command.*;
 
-	public static void log(String hostAddr) {
+public class BroadcasterThrift extends Broadcaster {
+
+	private HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
+	
+	
+	private void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
 			TTransport transport = new TFramedTransport(new TSocket(hostAddr, 5052));
@@ -51,7 +46,7 @@ public class Broadcaster{
 	}
 	  
 	
-	private static boolean openTransport(TTransport transport){
+	private boolean openTransport(TTransport transport){
 		try{
 			transport.open();
 			return true;
@@ -62,13 +57,23 @@ public class Broadcaster{
 	
 	
 	//should return sucess/failure?
-	public static void broadcast(BroadcastCommand cmd){
+	public void broadcast(CommandData data){
 		for(BroadcastService.Client cl: replicas){
+			BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
+														data.getArguments());
+			
 			try{
 				cl.send(cmd);
 			} catch(Exception e){
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void initialize(){
+		String retAddr = System.getenv("RET_LINKS");
+		for(String addr: retAddr.split(":")){
+			log(addr);
+		}		
 	}
 }

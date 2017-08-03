@@ -33,9 +33,6 @@ apply plugin: 'war'
 apply plugin: 'com.google.protobuf'
 
 
-
-
-group = 'org.springframework.data'
 version = "$springDataRedisTwitterVersion"
 
 
@@ -69,6 +66,8 @@ dependencies {
 	compile ("org.springframework.data:spring-data-redis:$springRedisVersion") {
         exclude group: 'commons-logging'
     }
+    
+    compile "org.springframework:spring-web:${springVersion}.RELEASE"
 	compile "org.springframework:spring-webmvc:$springVersion"
 	compile "javax.inject:com.springsource.javax.inject:1.0.0"
 	
