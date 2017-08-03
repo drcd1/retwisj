@@ -5,7 +5,7 @@ option java_package = "acl.server";
 option java_outer_classname = "ACLProto";
 option objc_class_prefix = "ACLP";
 
-package acl;
+package acl.server;
 
 // Interface exported by the server.
 service ACLService {

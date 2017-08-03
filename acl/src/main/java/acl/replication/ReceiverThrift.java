@@ -11,13 +11,13 @@ import org.apache.thrift.transport.TServerTransport;
 import acl.ACL;
 import acl.command.*;
 
-public class Receiver{
+public class ReceiverThrift{
 	
 	private static ACL acl;
-	
-	public static void run(ACL otherAcl){
+	public static void setAcl(ACL otherAcl){
 		acl = otherAcl;
-		
+	}
+	public static void run(){		
 		BroadcastHandler handler = new BroadcastHandler();
 		BroadcastService.Processor<BroadcastService.Iface> processor =
 					new BroadcastService.Processor<BroadcastService.Iface>(handler);
@@ -32,6 +32,7 @@ public class Receiver{
 		}
 		
 	}
+	
 	
 	static class BroadcastHandler implements BroadcastService.Iface {
 	    @Override

@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import acl.ACL;
 import acl.command.*;
 import acl.replication.Broadcaster;
+import acl.replication.BroadcasterGRPC;
 import acl.replication.BroadcasterThrift;
 
 import acl.replication.BroadcasterRest;
@@ -29,7 +30,7 @@ public class ACLInterface {
 	public ACLInterface(ACL acl){
 		this.acl = acl;
 		
-		broadcaster = new BroadcasterRest();
+		broadcaster = new BroadcasterGRPC();
 	}
 	
 	public Set<String> blocks(String uid){

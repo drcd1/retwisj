@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "acl.command";
+option java_outer_classname = "ACLCommand";
+option objc_class_prefix = "ACLC";
+
+package acl.command;
+
+// Interface exported by the server.
+service BroadcastService {
+  rpc send(BroadcastCommandGrpc) returns (Empty) {}
+}
+
+
+message BroadcastCommandGrpc {
+	int32 cmd = 1;
+	repeated string arguments = 2;
+}
+
+message Empty {
+
+}

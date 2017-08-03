@@ -13,7 +13,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import acl.replication.Broadcaster;
-import acl.replication.Receiver;
+import acl.replication.ReceiverGrpc;
+import acl.replication.ReceiverThrift;
 
 @Component
 public class ACLServerGenerator implements CommandLineRunner {
@@ -28,6 +29,9 @@ public class ACLServerGenerator implements CommandLineRunner {
 		
 		grpcServer=new ACLServerGRPC(acl);
 		thriftServer=new ACLServerThrift(acl);
+		ReceiverThrift.setAcl(acl.getACL());
+		ReceiverGrpc.setAcl(acl.getACL());
+		
 		Runnable grpc = new Runnable() {
 			public void run() {
 				try{
@@ -48,15 +52,26 @@ public class ACLServerGenerator implements CommandLineRunner {
 			}
 		};
 		
-		Runnable receive = new Runnable() {
+		Runnable receiveThrift = new Runnable() {
 			public void run() {
-				Receiver.run(acl.getACL()); //Receiver receives the propagated changes
+				ReceiverThrift.run(); //Receiver receives the propagated changes
+			}
+		};
+		
+		Runnable receiveGrpc = new Runnable() {
+			public void run() {
+				try{
+					ReceiverGrpc.run(); //Receiver receives the propagated changes
+				} catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		};
 		
 		new Thread(thrift).start();
 		new Thread(grpc).start();
-		new Thread(receive).start();
+		new Thread(receiveThrift).start();
+		new Thread(receiveGrpc).start();
 		
 		acl.initializeBroadcaster();			
 		
