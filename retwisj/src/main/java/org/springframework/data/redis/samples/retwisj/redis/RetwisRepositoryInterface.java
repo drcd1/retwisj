@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
+import java.util.UUID;
 
 import org.springframework.data.redis.samples.retwisj.command.*;
 
@@ -55,9 +55,10 @@ public class RetwisRepositoryInterface {
 	}
 
 	public String addUser(String name, String password) {
-		retwis.addUser(name, password);
+		String uid = UUID.randomUUID().toString();
+		retwis.addUser(name, password, uid);
 		broadcaster.broadcast(new CommandData(CommandData.Type.ADD_USER, 
-				new ArrayList<String>(Arrays.asList(name, password))));
+				new ArrayList<String>(Arrays.asList(name, password, uid))));
 		
 		return addAuth(name);
 	}
@@ -101,8 +102,10 @@ public class RetwisRepositoryInterface {
 	}
 
 	public void post(String username, WebPost post) {
-		retwis.post(username, post);
-
+		String pid = UUID.randomUUID().toString();
+		
+		retwis.post(username, post, pid);
+	
 		broadcaster.broadcast(new CommandData(CommandData.Type.POST, 
 				new ArrayList<String>(Arrays.asList(username, 
 													post.getContent() != null ? post.getContent(): "",
@@ -111,7 +114,8 @@ public class RetwisRepositoryInterface {
 													post.getReplyPid() != null ? post.getReplyPid(): "",
 													post.getPid() != null ? post.getPid(): "",
 													post.getTime() != null ? post.getTime(): "",
-													post.getTimeArg() != null ? post.getTimeArg(): "")						
+													post.getTimeArg() != null ? post.getTimeArg(): "",
+													pid)
 													)));	
 		
 		System.out.println("Broadcasting: post by " + username);

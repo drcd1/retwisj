@@ -9,6 +9,7 @@ public class PostCommand extends Command {
 	
 	String name;
 	WebPost post;
+	String pid;
 	
 	public PostCommand(List<String> args){
 		name = args.get(0);
@@ -19,6 +20,7 @@ public class PostCommand extends Command {
 							args.get(5),
 							args.get(6),
 							args.get(7));
+		pid = args.get(8);
 		
 	}
 
@@ -34,7 +36,7 @@ public class PostCommand extends Command {
 		System.out.println("  timeArg: " +post.getTimeArg());
 		
 		
-		retwis.post(name, post);
+		retwis.post(name, post, pid);
 	}
 
 }

@@ -100,9 +100,9 @@ public class RetwisRepository {
 		blocked_by = new HashSet<String>();
 	}
 
-	public void addUser(String name, String password) {
-		String uid = String.valueOf(userIdCounter.incrementAndGet());
-
+	public void addUser(String name, String password, String uid) {
+		String.valueOf(userIdCounter.incrementAndGet());
+		
 		// save user as hash
 		// uid -> user
 		BoundHashOperations<String, String, String> userOps = template.boundHashOps(KeyUtils.uid(uid));
@@ -149,13 +149,13 @@ public class RetwisRepository {
 		return users.range(range.begin, range.end);
 	}
 
-	public void post(String username, WebPost post) {
+	public void post(String username, WebPost post, String pid) {
 		Post p = post.asPost();
 
 		String uid = findUid(username);
 		p.setUid(uid);
 
-		String pid = String.valueOf(postIdCounter.incrementAndGet());
+		postIdCounter.incrementAndGet();
 
 		String replyName = post.getReplyTo();
 		if (StringUtils.hasText(replyName)) {
