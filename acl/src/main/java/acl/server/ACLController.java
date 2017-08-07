@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import acl.replication.Debug;
+
 import org.springframework.web.bind.annotation.RequestMethod;
 
 
@@ -37,6 +40,12 @@ public class ACLController {
 	@RequestMapping(value = "/unblock", method=RequestMethod.GET)
 	public String unblock(@RequestParam("id") String uid, @RequestParam("tid") String targetUid){
 		acl.unblock(uid, targetUid);
+		return "sucess";
+	}
+	
+	@RequestMapping("/activateDelay")
+	public String activateDelay(){
+		Debug.delay = true;
 		return "sucess";
 	}
 

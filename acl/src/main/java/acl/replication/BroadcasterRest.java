@@ -1,6 +1,8 @@
 package acl.replication;
 
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.web.client.RestTemplate;
 
 import acl.command.*;
@@ -25,16 +27,11 @@ public class BroadcasterRest extends Broadcaster {
 	//should return sucess/failure?
 	public void broadcast(CommandData data){
 		for(String replica: replicas){
-			String url = replica + "receive?cmd="+CommandData.getIntFromType(data.getCmd());
-			url+="&args=";
-			for(int i = 0; i<data.getArguments().size()-1; i++){
-				url+=data.getArguments().get(i) + ",";
-			}
-			url+=data.getArguments().get(data.getArguments().size()-1);
-			
-			
-			template.getForObject(url, String.class);
+			ThreadMethod r = new ThreadMethod(replica, data);
+			new Thread(r).start();
 		}
+		
+		Debug.delay = false;
 	}
 	
 	public void initialize(){
@@ -43,4 +40,34 @@ public class BroadcasterRest extends Broadcaster {
 			log(addr);
 		}
 	}
+	
+	class ThreadMethod implements Runnable{
+		ThreadMethod(String r, CommandData d){
+			this.rep = r;
+			this.d = d;
+		}
+		private String rep;
+		private CommandData d;
+		
+		private boolean delay = Debug.delay;
+		
+		public void run(){
+			if(delay){
+				try {
+					TimeUnit.SECONDS.sleep(60);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			String url = rep + "receive?cmd="+CommandData.getIntFromType(d.getCmd());
+			url+="&args=";
+			for(int i = 0; i<d.getArguments().size()-1; i++){
+				url+=d.getArguments().get(i) + ",";
+			}
+			url+=d.getArguments().get(d.getArguments().size()-1);
+			
+			template.getForObject(url, String.class);
+		}
+	};
 }

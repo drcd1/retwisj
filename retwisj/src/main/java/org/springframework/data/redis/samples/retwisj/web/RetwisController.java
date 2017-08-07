@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 
 
@@ -250,6 +251,16 @@ public class RetwisController {
 		checkPost(pid);
 		model.addAttribute("posts", retwis.getPost(pid));
 		return "status";
+	}
+	
+	@RequestMapping("/activateDelay")
+	public String activateDelay(){
+		RestTemplate rest = new RestTemplate();
+		
+		rest.getForObject("http://acl:8080/acl/activateDelay", String.class);
+		
+		return "redirect:/";
+		
 	}
 
 	private void checkUser(String username) {

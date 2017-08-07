@@ -30,9 +30,6 @@ public class ACLServerThrift{
 	private ACLInterface acl;
 	
 	public ACLServerThrift(ACLInterface acl) {
-		if(acl == null){
-			System.out.println("I am null!");
-		}
 		this.acl = acl;
 	}
 	

@@ -58,9 +58,41 @@ public class BroadcasterThrift extends Broadcaster {
 	
 	//should return sucess/failure?
 	public void broadcast(CommandData data){
+		BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
+													data.getArguments());
 		for(BroadcastService.Client cl: replicas){
-			BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
-														data.getArguments());
+			
+			ThreadMethod r = new ThreadMethod(cl, cmd);
+			new Thread(r).start();
+		}
+
+		Debug.delay = false;
+	}
+	
+	public void initialize(){		String retAddr = System.getenv("ACL_LINKS");
+		for(String addr: retAddr.split(":")){
+			log(addr);
+		}		
+	}
+	
+	class ThreadMethod implements Runnable{
+		ThreadMethod(BroadcastService.Client cl, BroadcastCommand cmd){
+			this.cl = cl;
+			this.cmd = cmd;
+		}
+		
+		private BroadcastService.Client cl;
+		private BroadcastCommand cmd;
+		private boolean delay = Debug.delay;
+		
+		public void run(){
+			if(delay){
+				try {
+					TimeUnit.SECONDS.sleep(60);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 			
 			try{
 				cl.send(cmd);
@@ -68,11 +100,5 @@ public class BroadcasterThrift extends Broadcaster {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void initialize(){		String retAddr = System.getenv("ACL_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}		
 	}
 }

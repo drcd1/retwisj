@@ -2,6 +2,7 @@ package org.springframework.data.redis.samples.retwisj.replication;
 
 import java.util.HashSet;
 import org.springframework.web.client.RestTemplate;
+
 import org.springframework.data.redis.samples.retwisj.command.*;
 
 public class BroadcasterRest extends Broadcaster {
@@ -22,18 +23,12 @@ public class BroadcasterRest extends Broadcaster {
 	  
 		
 	//should return sucess/failure?
-	public void broadcast(CommandData data){
-		for(String replica: replicas){
-			String url = replica + "receive?cmd="+CommandData.getIntFromType(data.getCmd());
-			url+="&args=";
-			for(int i = 0; i<data.getArguments().size()-1; i++){
-				url+=data.getArguments().get(i) + ",";
+		public void broadcast(CommandData data){
+			for(String replica: replicas){
+				ThreadMethod r = new ThreadMethod(replica, data);
+				new Thread(r).start();
 			}
-			url+=data.getArguments().get(data.getArguments().size()-1);
-			
-			template.getForObject(url, String.class);
 		}
-	}
 	
 	public void initialize(){
 		String retAddr = System.getenv("RET_LINKS");
@@ -41,4 +36,24 @@ public class BroadcasterRest extends Broadcaster {
 			log(addr);
 		}
 	}
+	
+	class ThreadMethod implements Runnable{
+		ThreadMethod(String r, CommandData d){
+			this.rep = r;
+			this.d = d;
+		}
+		private String rep;
+		private CommandData d;
+		
+		public void run(){
+			String url = rep + "receive?cmd="+CommandData.getIntFromType(d.getCmd());
+			url+="&args=";
+			for(int i = 0; i<d.getArguments().size()-1; i++){
+				url+=d.getArguments().get(i) + ",";
+			}
+			url+=d.getArguments().get(d.getArguments().size()-1);
+			
+			template.getForObject(url, String.class);
+		}
+	};
 }

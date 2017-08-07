@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 
 import org.springframework.data.redis.samples.retwisj.command.*;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -35,20 +36,14 @@ public class BroadcasterGRPC extends Broadcaster {
 	
 	//should return sucess/failure?
 	public void broadcast(CommandData data){
+		BroadcastCommandGrpc cmd = BroadcastCommandGrpc
+				.newBuilder()
+				.setCmd(CommandData.getIntFromType(data.getCmd()))
+				.addAllArguments(data.getArguments())
+				.build();
 		for(BroadcastServiceGrpc.BroadcastServiceBlockingStub stub: replicas){
-			BroadcastCommandGrpc cmd = BroadcastCommandGrpc
-									.newBuilder()
-									.setCmd(CommandData.getIntFromType(data.getCmd()))
-									.addAllArguments(data.getArguments())
-									.build();
-			try {
-				stub.send(cmd);
-				
-			} catch (StatusRuntimeException e) {
-				e.printStackTrace();
-				return;
-			}
-
+			ThreadMethod r = new ThreadMethod(stub, cmd);
+			new Thread(r).start();
 		}
 	}
 	
@@ -58,4 +53,23 @@ public class BroadcasterGRPC extends Broadcaster {
 			log(addr);
 		}		
 	}
+	
+	class ThreadMethod implements Runnable{
+		ThreadMethod(BroadcastServiceGrpc.BroadcastServiceBlockingStub stub, BroadcastCommandGrpc cmd){
+			this.stub = stub;
+			this.cmd = cmd;
+		}
+		
+		private BroadcastServiceGrpc.BroadcastServiceBlockingStub stub;
+		private BroadcastCommandGrpc cmd;
+		
+		public void run(){
+			try {
+				stub.send(cmd);				
+			} catch (StatusRuntimeException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+	};
 }

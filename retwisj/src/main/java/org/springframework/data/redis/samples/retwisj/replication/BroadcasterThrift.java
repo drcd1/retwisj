@@ -58,15 +58,11 @@ public class BroadcasterThrift extends Broadcaster {
 	
 	//should return sucess/failure?
 	public void broadcast(CommandData data){
+		BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
+													data.getArguments());
 		for(BroadcastService.Client cl: replicas){
-			BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
-														data.getArguments());
-			
-			try{
-				cl.send(cmd);
-			} catch(Exception e){
-				e.printStackTrace();
-			}
+			ThreadMethod r = new ThreadMethod(cl, cmd);
+			new Thread(r).start();
 		}
 	}
 	
@@ -76,4 +72,21 @@ public class BroadcasterThrift extends Broadcaster {
 			log(addr);
 		}		
 	}
+	
+	class ThreadMethod implements Runnable{
+		ThreadMethod(BroadcastService.Client cl, BroadcastCommand cmd){
+			this.cl = cl;
+			this.cmd = cmd;
+		}
+		private BroadcastService.Client cl;
+		private BroadcastCommand cmd;
+		
+		public void run(){
+			try{
+				cl.send(cmd);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+	};
 }
