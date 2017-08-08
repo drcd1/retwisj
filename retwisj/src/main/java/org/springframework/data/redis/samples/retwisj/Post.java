@@ -25,9 +25,26 @@ public class Post {
 
 	private String content;
 	private String uid;
-	private String time = String.valueOf(System.currentTimeMillis());
+	private String time;
 	private String replyPid;
 	private String replyUid;
+	
+	public Post(){
+		time = String.valueOf(System.currentTimeMillis());
+	}
+
+	public Post(String content,
+				String replyPid, 
+				String replyUid, 
+				String time, 
+				String uid) {
+		
+		this.content = content;
+		this.uid = uid;
+		this.time = time;
+		this.replyPid = replyPid;
+		this.replyUid = replyUid;
+	}
 
 	/**
 	 * Returns the content.

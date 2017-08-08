@@ -149,25 +149,28 @@ public class RetwisRepository {
 		return users.range(range.begin, range.end);
 	}
 
-	public void post(String username, WebPost post, String pid) {
-		Post p = post.asPost();
-
-		String uid = findUid(username);
-		p.setUid(uid);
-
+	public void post(String username, Post p, String pid, String replyName) {
 		postIdCounter.incrementAndGet();
-
-		String replyName = post.getReplyTo();
-		if (StringUtils.hasText(replyName)) {
-			String mentionUid = findUid(replyName);
-			p.setReplyUid(mentionUid);
-			// handle mentions below
-			p.setReplyPid(post.getReplyPid());
+		
+		if(!StringUtils.hasText(replyName)){
+			p.setReplyUid(null);
+			p.setReplyPid(null);
 		}
-
+		
+		System.out.println("Post printed:");
+		System.out.println("content " + p.getContent());
+		System.out.println("repPid  " + p.getReplyPid());
+		System.out.println("repUid  " + p.getReplyUid());
+		System.out.println("time    " + p.getTime());
+		System.out.println("uid     " + p.getUid());
+		
+		System.out.println("pid     " + pid);
+		System.out.println("repName " + replyName);
+		
 		// add post
 		post(pid).putAll(postMapper.toHash(p));
-
+		
+		String uid = p.getUid();
 		// add links
 		posts(uid).addFirst(pid);
 		timeline(uid).addFirst(pid);

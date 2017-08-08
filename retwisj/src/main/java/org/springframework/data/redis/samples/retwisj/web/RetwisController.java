@@ -222,9 +222,7 @@ public class RetwisController {
 
 	@RequestMapping("/timeline")
 	public String timeline(@RequestParam(required = false) Integer page, Model model) {
-		
 		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
-		
 		
 		// sanitize page attribute
 		page = (page != null ? Math.abs(page) : 1);

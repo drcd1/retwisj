@@ -27,12 +27,15 @@ import org.springframework.data.redis.samples.retwisj.command.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.springframework.data.redis.samples.retwisj.Post;
 import org.springframework.data.redis.samples.retwisj.Range;
 import org.springframework.data.redis.samples.retwisj.replication.BroadcasterThrift;
 import org.springframework.data.redis.samples.retwisj.replication.Broadcaster;
 import org.springframework.data.redis.samples.retwisj.replication.BroadcasterGRPC;
 import org.springframework.data.redis.samples.retwisj.replication.BroadcasterRest;
 import org.springframework.data.redis.samples.retwisj.web.WebPost;
+import org.springframework.util.StringUtils;
 
 
 
@@ -64,8 +67,7 @@ public class RetwisRepositoryInterface {
 	}
 		
 	public void setBlocked(Set<String> blocked){
-		retwis.setBlocked(blocked);
-		
+		retwis.setBlocked(blocked);		
 	}
 	
 	public List<WebPost> getPost(String pid) {
@@ -103,32 +105,43 @@ public class RetwisRepositoryInterface {
 
 	public void post(String username, WebPost post) {
 		String pid = UUID.randomUUID().toString();
+		Post p = post.asPost();
+
+		String uid = retwis.findUid(username);
+		p.setUid(uid);
+
+		String replyName = post.getReplyTo();
+		if (StringUtils.hasText(replyName)) {
+			String mentionUid = retwis.findUid(replyName);
+			p.setReplyUid(mentionUid);
+			// handle mentions below
+			p.setReplyPid(post.getReplyPid());
+		}
 		
-		retwis.post(username, post, pid);
+		retwis.post(username, p, pid, replyName);
 	
 		broadcaster.broadcast(new CommandData(CommandData.Type.POST, 
 				new ArrayList<String>(Arrays.asList(username, 
-													post.getContent() != null ? post.getContent(): "",
-													post.getName() != null ? post.getName(): "",
-													post.getReplyTo() != null ? post.getReplyTo(): "",
-													post.getReplyPid() != null ? post.getReplyPid(): "",
-													post.getPid() != null ? post.getPid(): "",
-													post.getTime() != null ? post.getTime(): "",
-													post.getTimeArg() != null ? post.getTimeArg(): "",
-													pid)
-													)));	
+													p.getContent()  != null ? p.getContent(): "",
+													p.getReplyPid() != null ? p.getReplyPid(): "",
+													p.getReplyUid() != null ? p.getReplyUid(): "",
+													p.getTime()     != null ? p.getTime(): "",
+													p.getUid()      != null ? p.getUid(): "",
+													pid,
+													replyName
+													)
+													)));
 		
-		System.out.println("Broadcasting: post by " + username);
-		System.out.println("Posting: " + username + " posts the following: ");
-		System.out.println("  content: " + post.getContent());
-		System.out.println("  name:    " + post.getName()) ;
-		System.out.println("  Reply to:"+post.getReplyTo());
-		System.out.println("  ReplyPid:"+post.getReplyPid()); 
-		System.out.println("  pid:     "+post.getPid());
-		System.out.println("  time:    "+post.getTime());
-		System.out.println("  timeArg: " +post.getTimeArg());
+		System.out.println("Post sent:");
+		System.out.println("content " + p.getContent());
+		System.out.println("repPid  " + p.getReplyPid());
+		System.out.println("repUid  " + p.getReplyUid());
+		System.out.println("time    " + p.getTime());
+		System.out.println("uid     " + p.getUid());
 		
-		
+		System.out.println("pid     " + pid);
+		System.out.println("repName " + replyName);
+
 	}
 
 	public String findUid(String name) {
