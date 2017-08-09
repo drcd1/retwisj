@@ -18,6 +18,7 @@ service ACLService {
 message Uids {
 	string id = 1;
 	string targetId = 2;
+	int32 delay = 3;
 }
 
 message Uid {

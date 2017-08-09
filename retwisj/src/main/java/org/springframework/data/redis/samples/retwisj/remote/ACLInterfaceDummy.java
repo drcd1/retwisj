@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ACLInterfaceDummy implements ACLInterface {
-	public void block(String uid, String targetUid){
+	public void block(String uid, String targetUid, int delay){
 		System.out.println(uid + " blocked " + targetUid);
 	}
 

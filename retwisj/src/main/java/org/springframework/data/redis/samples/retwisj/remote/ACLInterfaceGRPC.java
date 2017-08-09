@@ -42,8 +42,8 @@ public class ACLInterfaceGRPC implements ACLInterface {
 	}
 	
 	@Override
-	public void block(String uid, String targetUid) {
-		Uids request = Uids.newBuilder().setId(uid).setTargetId(targetUid).build();
+	public void block(String uid, String targetUid, int delay) {
+		Uids request = Uids.newBuilder().setId(uid).setTargetId(targetUid).setDelay(delay).build();
 		Empty response;
 		try {
 			response = blockingStub.block(request);

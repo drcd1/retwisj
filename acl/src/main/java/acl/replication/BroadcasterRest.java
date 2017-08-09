@@ -25,13 +25,11 @@ public class BroadcasterRest extends Broadcaster {
 	  
 		
 	//should return sucess/failure?
-	public void broadcast(CommandData data){
+	public void broadcast(CommandData data, int delay){
 		for(String replica: replicas){
-			ThreadMethod r = new ThreadMethod(replica, data);
+			ThreadMethod r = new ThreadMethod(replica, data, delay);
 			new Thread(r).start();
 		}
-		
-		Debug.delay = false;
 	}
 	
 	public void initialize(){
@@ -42,19 +40,20 @@ public class BroadcasterRest extends Broadcaster {
 	}
 	
 	class ThreadMethod implements Runnable{
-		ThreadMethod(String r, CommandData d){
+		ThreadMethod(String r, CommandData d, int delay){
 			this.rep = r;
 			this.d = d;
+			this.delay = delay;
 		}
 		private String rep;
 		private CommandData d;
 		
-		private boolean delay = Debug.delay;
+		private int delay;
 		
 		public void run(){
-			if(delay){
+			if(delay>0){
 				try {
-					TimeUnit.SECONDS.sleep(60);
+					TimeUnit.SECONDS.sleep(delay);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -40,16 +40,16 @@ public class ACLInterface {
 		return acl.blockedBy(uid);
 	}
 	
-	public void block(String uid, String targetUid){
+	public void block(String uid, String targetUid, int delay){
 		acl.block(uid, targetUid);	
 		broadcaster.broadcast(new CommandData(CommandData.Type.BLOCK, 
-				new ArrayList<String>(Arrays.asList(uid, targetUid))));	
+				new ArrayList<String>(Arrays.asList(uid, targetUid))), delay);	
     }
 	
 	public void unblock(String uid, String targetUid){
 		acl.unblock(uid, targetUid);
     	broadcaster.broadcast(new CommandData(CommandData.Type.UNBLOCK, 
-				new ArrayList<String>(Arrays.asList(uid, targetUid))));	
+				new ArrayList<String>(Arrays.asList(uid, targetUid))), 0);	
 	}
 	
 	public ACL getACL(){

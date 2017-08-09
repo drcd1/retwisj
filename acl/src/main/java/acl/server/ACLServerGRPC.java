@@ -77,7 +77,7 @@ public class ACLServerGRPC{
 	    public void block(Uids uids, StreamObserver<Empty> responseObserver) {
 	      Empty reply = Empty.newBuilder().build();
 	      
-	      acl.block(uids.getId(), uids.getTargetId());
+	      acl.block(uids.getId(), uids.getTargetId(), uids.getDelay());
 	      
 	      responseObserver.onNext(reply);
 	      responseObserver.onCompleted();

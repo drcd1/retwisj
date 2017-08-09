@@ -33,18 +33,16 @@ public class BroadcasterGRPC extends Broadcaster {
 	  
 	
 	//should return sucess/failure?
-	public void broadcast(CommandData data){
+	public void broadcast(CommandData data, int delay){
 		BroadcastCommandGrpc cmd = BroadcastCommandGrpc
 				.newBuilder()
 				.setCmd(CommandData.getIntFromType(data.getCmd()))
 				.addAllArguments(data.getArguments())
 				.build();
 		for(BroadcastServiceGrpc.BroadcastServiceBlockingStub stub: replicas){
-			ThreadMethod r = new ThreadMethod(stub, cmd);
+			ThreadMethod r = new ThreadMethod(stub, cmd, delay);
 			new Thread(r).start();
 		}
-		
-		Debug.delay = false;
 	}
 	
 	public void initialize(){		
@@ -55,20 +53,20 @@ public class BroadcasterGRPC extends Broadcaster {
 	}
 	
 	class ThreadMethod implements Runnable{
-		ThreadMethod(BroadcastServiceGrpc.BroadcastServiceBlockingStub stub, BroadcastCommandGrpc cmd){
+		ThreadMethod(BroadcastServiceGrpc.BroadcastServiceBlockingStub stub, BroadcastCommandGrpc cmd, int delay){
 			this.stub = stub;
 			this.cmd = cmd;
-			this.delay = Debug.delay;
+			this.delay = delay;
 		}
 		
 		private BroadcastServiceGrpc.BroadcastServiceBlockingStub stub;
 		private BroadcastCommandGrpc cmd;
-		private boolean delay;
+		private int delay;
 		
 		public void run(){
-			if(delay){
+			if(delay>0){
 				try {
-					TimeUnit.SECONDS.sleep(60);
+					TimeUnit.SECONDS.sleep(delay);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

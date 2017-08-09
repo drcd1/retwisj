@@ -9,8 +9,8 @@ public class ACLInterfaceRest implements ACLInterface{
 	
 	private final RestTemplate rest = new RestTemplate();
 	
-	public void block(String uid, String targetUid){
-		rest.getForObject("http://acl:8080/acl/block?id="+uid + "&tid=" + targetUid, String.class);
+	public void block(String uid, String targetUid, int delay){
+		rest.getForObject("http://acl:8080/acl/block?id="+uid + "&tid=" + targetUid + "&delay=" + delay, String.class);
 	}
 
 	public void unblock(String uid, String targetUid){

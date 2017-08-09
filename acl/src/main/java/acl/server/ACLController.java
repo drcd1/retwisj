@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import acl.replication.Debug;
 
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -32,8 +31,8 @@ public class ACLController {
 	}
 	
 	@RequestMapping(value = "/block", method=RequestMethod.GET)
-	public String block(@RequestParam("id") String uid, @RequestParam("tid") String targetUid){
-		acl.block(uid, targetUid);
+	public String block(@RequestParam("id") String uid, @RequestParam("tid") String targetUid, @RequestParam("delay") String delay){
+		acl.block(uid, targetUid, Integer.parseInt(delay));
 		return "sucess";
 	}
 	
@@ -42,11 +41,4 @@ public class ACLController {
 		acl.unblock(uid, targetUid);
 		return "sucess";
 	}
-	
-	@RequestMapping("/activateDelay")
-	public String activateDelay(){
-		Debug.delay = true;
-		return "sucess";
-	}
-
 }

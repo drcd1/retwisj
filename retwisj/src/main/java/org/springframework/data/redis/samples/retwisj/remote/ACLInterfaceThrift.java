@@ -80,12 +80,12 @@ public class ACLInterfaceThrift implements ACLInterface {
 	}
 	
 	@Override
-	public void block(String uid, String targetUid) {
+	public void block(String uid, String targetUid, int delay) {
 		if(!open){
 			start();
 		}
 		try {
-			client.block(uid, targetUid);
+			client.block(uid, targetUid, delay);
 		} catch (TException x) {
 		      x.printStackTrace();
 		}

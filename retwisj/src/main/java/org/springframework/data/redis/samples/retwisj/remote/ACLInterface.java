@@ -10,7 +10,7 @@ public interface ACLInterface {
 	 * @param uid The uid of the user blocking.
 	 * @param targetUid The uid of the blocked user
 	 */
-	public void block(String uid, String targetUid);
+	public void block(String uid, String targetUid, int delay);
 	
 	
 	

@@ -172,8 +172,8 @@ public class RetwisController {
 	}
 	
 	@RequestMapping(value = "/!{name}/block", method = RequestMethod.GET)
-	public String block(@PathVariable String name, Model model){
-		block(RetwisSecurity.getUid(), retwis.findUid(name));
+	public String block(@PathVariable String name,@RequestParam("delay") String delay, Model model){
+		block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
 		return "redirect:/!" + name;
 	}
 	
@@ -251,16 +251,6 @@ public class RetwisController {
 		return "status";
 	}
 	
-	@RequestMapping("/activateDelay")
-	public String activateDelay(){
-		RestTemplate rest = new RestTemplate();
-		
-		rest.getForObject("http://acl:8080/acl/activateDelay", String.class);
-		
-		return "redirect:/";
-		
-	}
-
 	private void checkUser(String username) {
 		if (!retwis.isUserValid(username)) {
 			throw new NoSuchDataException(username, true);
@@ -290,8 +280,8 @@ public class RetwisController {
 		return acl.blocks(uid).contains(targetUid);
 	}
 	
-	public void block(String uid, String targetUid){
-		acl.block(uid, targetUid);
+	public void block(String uid, String targetUid, int delay){
+		acl.block(uid, targetUid, delay);
 	}
 	public void unblock(String uid, String targetUid){
 		acl.unblock(uid, targetUid);

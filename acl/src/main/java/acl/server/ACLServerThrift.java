@@ -59,8 +59,8 @@ public class ACLServerThrift{
 		}
 		
 	    @Override
-	    public void block(String uid, String targetUid) {
-	    	acl.block(uid, targetUid); 
+	    public void block(String uid, String targetUid, int delay) {
+	    	acl.block(uid, targetUid, delay); 
 	    }
 	    
 	    @Override
