@@ -70,7 +70,63 @@ When building the docker images, we pass the reference of the oter replicas to e
 For testing purposes, we've added a delay parameter when broadcasting changes from ACL, thus making the replication different across both microsservices.
 
 ## The Problem
-As mentioned before, the purpose of this system is to study replication problems...
+As mentioned before, the purpose of this system is to study replication problems in system that implement the microsservices architectural pattern. 
 
+The concrete problem we're studying is related to the lack of consistency in the Access Control List (ACL). The root of the problem
+lies in the constraint implied by the following requirement of the system:
 
+> Posts made by an user after blocking another shall not be read by the latter.
+
+In the current state of our system, because the replication of posts (in Retwisj) and the
+replication of blocks (in ACL) is done independently, we have no way of knowing which 
+information is replicated first.
+
+#### Case Study
+We have two replicas of the system (US and EU), and two users (Alice, in the US, and Eve, in EU).
+Let's observe the following system of events, presented in chronological order.
+
+1. (US) Alice blocks Eve.
+1. (US) Alice posts something.
+1. (EU) Eve tries to read all posts.
+
+There are two events that also happen, but are not depicted above. These correspond to the
+propagation of events 1 and 2 to the EU replica. We'll call these 1r and 2r, respectively.
+
+Because we are not ensuring any ordering of the events 1r and 2r (we know only for sure that 
+1 comes before 1r, and 2 comes before 2r), we can have any of the following sequence of events 
+in the EU replica.
+
+No. of Sequence |Sequence | Eve reads Alice's post?
+----------------------------------------------------
+1|(1r, 2r, 3)| No
+2|(2r, 1r, 3)| No
+3|(1r, 3, 2r)| No
+4|(2r, 3, 1r)| Yes
+5|(3, 1r, 2r)| No
+6|(3, 2r, 1r)| No
+
+The outcome for sequences 3, 5 and 6 is trivial (the post hasn't been posted yet, so Eve cannot read it.
+Sequence 1 corresponds to the chronological order in which events 1, 2 and 3 took place, so it's only naturl tat
+Eve cannot read Alice's post.
+In sequence 2, the outcome is less obvious, and relies on the fact that the final state of the
+System is independent of the ordering of events 1r and 2r.
+However, as sequence 4 shows us, the intermediary states of the System are not independent of the
+order of events. If sequence 4 takes place, Eve will read Alice's post, because the information 
+that Eve had been blocked only arrives at the replica after the post, and after Eve tries to read
+the post.
+
+A suficient condition to ensure sequence 3 never takes place is establishing a relation of order
+between event 1r and 2r, that says that 1r must come before 2r.
+
+We may ask if the same problem exists within a single replica (because it's composed of two
+microsservices, and there can be delays in their communication). The problem doesn't exist, however,
+because Retwisj communicates with ACL synchrounously. Their communication must be synchronous, for
+we must guarantee that users read their own writes.
+
+#### Reproducing the problem
+We've added the option of "Blocking with delay". When running the Web Application, in a user's 
+homepage, there's a button that says "Block (with delay)". This button performs the usual
+operation of blocking another user, but introduces an artificial delay of 60s in the replication.
+
+The following sequence of images showcases the problem described above:
 
