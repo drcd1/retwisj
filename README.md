@@ -148,6 +148,6 @@ The following sequence of images showcases the problem described above:
 
 ![](https://github.com/drcd1/retwisj/blob/master/images/EveSees.png) |  ![](https://github.com/drcd1/retwisj/blob/master/images/EveSeesNot.png)
 :-------------------------:|:-------------------------:
-*Figure 3: Eve sees Alice's post **(EU)*** | *Figure 4: After a while, Eve no longer sees the post **(EU)**
+*Figure 3: Eve sees Alice's post **(EU)*** | *Figure 4: After a while, Eve no longer sees the post **(EU)***
 
 
