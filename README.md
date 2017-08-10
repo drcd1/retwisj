@@ -123,7 +123,7 @@ because the information that **Eve** had been blocked only arrives at the replic
 and after **Eve** tries to read the post.
 
 A *suficient condition* to ensure **sequence 4** never takes place is establishing a relation of order
-between event **1r** and **2r**, that says that **1r** must come before **2r**.
+between event **1r** and **2r**, that states that **1r** must come before **2r**.
 
 We may ask if the same problem exists within a single replica (because it's composed of two
 microsservices, *and there can be delays in their communication*). The problem doesn't exist, however,
@@ -131,9 +131,23 @@ because **Retwisj** communicates with **ACL** *synchronously*. Their communicati
 we must guarantee that users ***read their own writes***.
 
 #### Reproducing the problem
+
 We've added the option of "Blocking with delay". When running the Web Application, in a user's 
 homepage, there's a button that says "Block (with delay)". This button performs the usual
 operation of blocking another user, but *introduces an artificial delay of 60s in the replication*.
 
 The following sequence of images showcases the problem described above:
+
+
+
+![](https://github.com/drcd1/retwisj/blob/master/images/AliceBlocksEve.png) |  ![](https://github.com/drcd1/retwisj/blob/master/images/AlicePosts.png?raw=true)
+:-------------------------:|:-------------------------:
+*figure 1: Alice blocks Eve **(US)***|*figure 2: Alice posts (US)
+
+
+
+![](https://github.com/drcd1/retwisj/blob/master/images/EveSees.png) |  ![](https://github.com/drcd1/retwisj/blob/master/images/EveSeesNot.png)
+:-------------------------:|:-------------------------:
+*figure 3: Eve sees Alice's post (EU)* | *figure 4: After a while, Eve no longer sees the post (EU)*
+
 
