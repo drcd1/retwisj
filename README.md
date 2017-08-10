@@ -1,15 +1,15 @@
 # Retwisj+ACL
 ## What is this project?
 
-This project is based on Retwisj, the java implentation of the twitter clone, Retwis, 
-which served as a demo for Spring Data Redis. (LINK)
-It has increased functionality: It contains an Access Control List, which enables users to block other users and supports replication of each microsservice.
+This project is based on **Retwisj**, the java implentation of the twitter clone, **Retwis**, 
+which served as a demo for **Spring Data Redis**. (LINK)
+It has increased functionality: It contains an Access Control List, which enables users to block other users and supports replication of each microservice.
 
-Our changes subdivide the aplication in two microsservices: Retwisj, which maintains the previous functionality, 
+Our changes subdivide the aplication in two microservices: Retwisj, which maintains the previous functionality, 
 and an Access Control List (ACL), which allows users to block other users. We've also added the ability 
-for every microsservice to have multiple replicas, and every change to a replica is propagated across all of them.
+for every microservice to have multiple replicas, and every change to a replica is propagated across all of them.
 
-The goal of this project is to better allow studying consistency when the system is composed of several microsservices... 
+The goal of this project is to better allow studying consistency when the system is composed of several microservices... 
 (incomplete...)
 
 ## Running Retwisj+ACL
@@ -20,22 +20,23 @@ The goal of this project is to better allow studying consistency when the system
 
 #### How to Run?
 
-1. Run the script `composeGenereator.sh`. Can be provided with a list of arguments, which are the names of the replicas
-to be generated. If run without arguments, it will default to generating two replicas ("US" and "EU").
+1. Run the script `composeGenereator.sh`. Can be provided with a *list of arguments*, which are the names of the replicas
+to be generated. If run without arguments, it will default to generating two replicas (**"US"** and **"EU"**).
 1. Run the command `docker-compose up --build`.
-1. Using a browser, open the ports corresponding to any of the Retwisj replicas.
+1. Using a browser, open the ports corresponding to any of the **Retwisj** replicas.
 
 
 ## Retwisj
 Although the functionallity was mostly kept from the original (see here: LINK), it was necessary to make some changes:
-The MVC Controller now has two extra methods: block and unblock, for blocking and unblocking users.
+The MVC Controller now has two extra methods: **block** and **unblock**, for blocking and unblocking users.
 Because of the added functionality, the views had to be changed: When the user is 
 viewing another user's page, there's a button for blocking and unblocking users.
-Since users can't see posts from users who blocked them, they're filtered out after fetching them in RetwisRepository.
+Since users can't see posts from users who blocked them, they're filtered out after fetching them in 
+`RetwisRepository`.
 
 ## ACL
 
-The ACL structure was kept similar to the structure that already existed in Retwisj. The main class, ACL, 
+The **ACL** structure was kept similar to the structure that already existed in Retwisj. The main class, `ACL`, 
 maintains a connection to Redis (using Spring Data Redis, like Retwisj), where it stores the following information: 
 
 Key | Value
@@ -43,26 +44,96 @@ Key | Value
 {uid}:blocks | List of uids of users blocked by user whose identifier is {uid}
 {uid}:blockedBy| List of uids of users who block the user whose identifier is {uid}
 
-ACL also contains methods for writing to/reading from the database, functioning like RetwisRepository in Retwisj.
+`ACL` also contains methods for writing to/reading from the database, functioning like RetwisRepository in Retwisj.
 
 ## Comunication between Retwisj and ACL
 
 #### Retwisj
-It was added an abstract class, ACLInterface, which allows Retwisj to make requests to the ACL. It's implementations 
-(ACLInterfaceRest, ACLInterfaceGrpc and ACLInterfaceThrift) allow the communication between Retwisj and ACL
-to be done using REST, gRPC or Apache Thrift.
+It was added an abstract class, `ACLInterface`, which allows **Retwisj** to make requests to the **ACL**.
+Its implementations (`ACLInterfaceRest`, `ACLInterfaceGrpc` and `ACLInterfaceThrift`) allow the 
+communication between **Retwisj** and **ACL** to be done using **REST**, **gRPC** or **Apache Thrift**.
 
 #### ACL
-To allow connection form Retwisj, ACL must launch a Server for every communicatin type. Because ACL uses Spring-boot,
-Spring-boot launches the RestController, which acts as a Server for the REST client in Retwisj. The other two Servers 
-(for the gRPC and Thrift clients in Retwisj) are launched by ACLServerLauncher. Each server calls methods 
+To allow connection form **Retwisj**, **ACL** must launch a Server for every communicatin type. Because ACL uses Spring-boot,
+Spring-boot launches `RetwisController`, which acts as a Server for the REST client in Retwisj. The other two Servers 
+(for the gRPC and Thrift clients in Retwisj) are launched by `ACLServerLauncher`. Each server calls methods 
 in ACL that ensure the requirements of the client
 
 ## Replication
+The replication is implemented in the same way in both microservices.
+Every call to the repository class (`ACL`/`RetwisRepository`) has been rerouted to pass through an interface, (`ACLInterface`/`RetwisRepositoryInterface`), which handles replication.
 
-...TO DO...
+Communication between replicas has been implemented using REST, gRPC and Apache Thrift: every replica has a server for each type and one clients that communicate with the other replicas. The changes to the state of a replica are passed as a `CommandData object`, an object that stores all data relative to a change in the system, can be easily sent using any of the above mentioned communication protocols, and can be used to generate a `Command` that can be run by he repository classes (this `Command` is generated by the `CommandFactory`).
 
+When building the docker images, we pass the reference of the oter replicas to each replica, and store it as an environment variable of the container. When starting the clients, we read this environment variable to know the addresses of the other replicas.
 
+#### Note:
+For testing purposes, we've added a delay parameter when broadcasting changes from ACL, thus making the replication different across both microservices.
 
+## The Problem
+As mentioned before, the purpose of this system is to study replication problems in system that implement the microservices architectural pattern. 
 
+The concrete problem we're studying is related to the lack of consistency in the Access Control List (ACL). The root of the problem
+lies in the constraint implied by the following requirement of the system:
+
+> Posts made by an user after blocking another shall not be read by the latter.
+
+In the current state of our system, because the replication of posts (in **Retwisj**) and the
+replication of blocks (in **ACL**) is done independently, we have no way of knowing which 
+information is replicated first.
+
+#### Case Study
+We have two replicas of the system (**US** and **EU**), and two users 
+(**Alice**, in the **US**, and **Eve**, in **EU**).
+
+Let's observe the following system of events, presented in chronological order.
+
+1. (**US**) **Alice** blocks **Eve**.
+1. (**US**) **Alice** posts something.
+1. (**EU**) **Eve** tries to read all posts.
+
+There are two events that also happen, but are not depicted above. These correspond to the
+propagation of events **1** and **2** to the **EU** replica. 
+We'll call these **1r** and **2r**, respectively.
+
+Because we are not ensuring any ordering of the events **1r** and **2r**
+(we know only for sure that **1** comes before **1r**, and **2** comes before **2r**),
+we can have any of the following sequence of events in the **EU** replica.
+
+No. of Sequence |Sequence | Eve reads Alice's post?
+----------------|---------|---------------------------
+1|(1r, 2r, 3)| No
+2|(2r, 1r, 3)| No
+3|(1r, 3, 2r)| No
+4|(2r, 3, 1r)| Yes
+5|(3, 1r, 2r)| No
+6|(3, 2r, 1r)| No
+
+The outcome for **sequences 3**, **5** and **6** is trivial (the post hasn't been posted yet,
+so **Eve** cannot read it).
+**Sequence 1** corresponds to the chronological order in which events **1**, **2** and **3**
+took place, so it's only natural that **Eve** cannot read **Alice's** post.
+
+In **sequence 2**, the outcome is less obvious, and relies on the fact that the final state of the
+System is *independent* of the ordering of events **1r** and **2r**.
+
+However, as **sequence 4** shows us, the intermediary states of the System are ***not** independent* 
+of the order of events. If **sequence 4** takes place, **Eve** *will* read **Alice's** post, 
+because the information that **Eve** had been blocked only arrives at the replica after the post, 
+and after **Eve** tries to read the post.
+
+A *suficient condition* to ensure **sequence 4** never takes place is establishing a relation of order
+between event **1r** and **2r**, that says that **1r** must come before **2r**.
+
+We may ask if the same problem exists within a single replica (because it's composed of two
+microsservices, *and there can be delays in their communication*). The problem doesn't exist, however,
+because **Retwisj** communicates with **ACL** *synchronously*. Their communication must be *synchronous*, for
+we must guarantee that users ***read their own writes***.
+
+#### Reproducing the problem
+We've added the option of "Blocking with delay". When running the Web Application, in a user's 
+homepage, there's a button that says "Block (with delay)". This button performs the usual
+operation of blocking another user, but *introduces an artificial delay of 60s in the replication*.
+
+The following sequence of images showcases the problem described above:
 
