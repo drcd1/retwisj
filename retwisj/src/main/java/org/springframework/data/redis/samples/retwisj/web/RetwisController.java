@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -64,7 +65,7 @@ public class RetwisController {
 	@Autowired
 	public RetwisController(RetwisRepositoryInterface twitter) {
 		this.retwis = twitter;
-		acl = new ACLInterfaceThrift();
+		acl = new ACLInterfaceRest();
 				
 		System.out.println("generatedController..");
 	}
@@ -172,15 +173,35 @@ public class RetwisController {
 	}
 	
 	@RequestMapping(value = "/!{name}/block", method = RequestMethod.GET)
-	public String block(@PathVariable String name,@RequestParam("delay") String delay, Model model){
-		block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
-		return "redirect:/!" + name;
+	public String block(@PathVariable String name, @RequestParam("delay") String delay, 
+												@RequestParam(value = "blockedBy", required = false) String blockedBy,
+												Model model){
+
+		System.out.println(blockedBy+ ": blocks" + name + " with " + delay + " s of delay");
+		
+		if(StringUtils.hasText(blockedBy)){
+			System.out.println("from " + retwis.findUid(blockedBy)  +": Calling block(" + RetwisSecurity.getUid() +", " + retwis.findUid(name) + ", " + Integer.parseInt(delay) + ")");
+			block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
+			return "redirect:/!" + name;			
+		}
+		
+		else {
+			block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
+			return "redirect:/!" + name;
+		}
 	}
 	
 	@RequestMapping(value = "/!{name}/unblock", method = RequestMethod.GET)
 	public String unblock(@PathVariable String name, Model model){
 		unblock(RetwisSecurity.getUid(), retwis.findUid(name));
 		return "redirect:/!" + name;
+	}
+	
+	@RequestMapping("/!{name}/read")
+	@ResponseBody
+	public String read(@PathVariable String name, Model model){
+		Range range = new Range();
+		return (retwis.getPosts(retwis.findUid(name), range).get(0).getContent());
 	}
 
 	@RequestMapping("/!{name}/follow")

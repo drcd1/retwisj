@@ -92,4 +92,17 @@ do
     echo "">>docker-compose.yml
 done                 
 
+ret_links=""
+
+for ((j = 0; j < ($n_zones-1); j++));
+do
+  ret_links=$ret_links"retwisj-"${zone_list[$j]}":"  
+done
+ret_links=$ret_links"retwisj-"${zone_list[$n_zones-1]}
+
+echo "  sandbox:           ">>docker-compose.yml
+echo "    build: ./sandbox ">>docker-compose.yml
+echo "    tty: true        ">>docker-compose.yml
+echo "    environment:       ">>docker-compose.yml
+echo "      - RET_LINKS="$ret_links>>docker-compose.yml
 

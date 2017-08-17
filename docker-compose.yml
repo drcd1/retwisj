@@ -7,7 +7,7 @@ services:
     expose:                               
      - '8080'                             
      - '8084'                             
-     - '9090'
+     - '9090'                             
     environment:                 
       - ACL_LINKS=acl-us:acl-jp
       - MY_NAME=acl-eu
@@ -90,3 +90,8 @@ services:
     expose:      
       - '6379'   
 
+  sandbox:           
+    build: ./sandbox 
+    tty: true        
+    environment:       
+      - RET_LINKS=retwisj-eu:retwisj-us:retwisj-jp

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.springframework/spring-web/3.1.4.RELEASE/jar/ccc9a401f6e146fe80108db9fbfde894cb63d6a0/spring-web-3.1.4.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.springframework/spring-web/3.1.4.RELEASE/source/49519e064d29af6dd7ba3be46ff6a51db93ebea8/spring-web-3.1.4.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/1.5.2.RELEASE/8a9b8c747bc2c86eefde10330cb2984541bcb9d1/spring-boot-autoconfigure-1.5.2.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-autoconfigure/1.5.2.RELEASE/7d94a8f1c40950f3cf2cbde63601b4d3474910ed/spring-boot-autoconfigure-1.5.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/1.5.2.RELEASE/46bb5d8c9ab5d3ef9e158ca5906ee7d3569befc1/spring-boot-1.5.2.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot/1.5.2.RELEASE/e32446ad4c35599891084571b09053205f730a1/spring-boot-1.5.2.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.springframework/spring-context/3.1.4.RELEASE/jar/ea5a227269a74dfd0d840ca91e647bc5212072b8/spring-context-3.1.4.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.springframework/spring-context/3.1.4.RELEASE/source/b113853e9b635b5519795cf8b5ab462b09fec36/spring-context-3.1.4.RELEASE-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.7.RELEASE/480fc4673b53daa1993eb1940711828ebf35807b/spring-test-4.3.7.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework/spring-test/4.3.7.RELEASE/189011f72c5b6efcfef97135a0ed6cbd2895e2f8/spring-test-4.3.7.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/4.3.7.RELEASE/54fa2db94cc7222edc90ec71354e47cd1dc07f7b/spring-core-4.3.7.RELEASE.jar" sourcepath="C:/Users/asus/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/4.3.7.RELEASE/d6bbdf962fa3a7e654f414262ac735bb9b4847ec/spring-core-4.3.7.RELEASE-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
