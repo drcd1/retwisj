@@ -41,7 +41,6 @@ public class CookieInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		// all non-root requests get analyzed
 		Cookie[] cookies = request.getCookies();
-
 		if (!ObjectUtils.isEmpty(cookies)) {
 			for (Cookie cookie : cookies) {
 				if (RETWIS_COOKIE.equals(cookie.getName())) {

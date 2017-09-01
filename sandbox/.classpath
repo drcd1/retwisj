@@ -25,5 +25,6 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.apache.httpcomponents/httpclient/4.4.1/jar/16d0bc512222f1253ee6b64d389c84e22f697f0/httpclient-4.4.1.jar" sourcepath="C:/Users/asus/.gradle/caches/artifacts-14/filestore/org.apache.httpcomponents/httpclient/4.4.1/source/30cb4791019c7280227e027b01814f4964a02482/httpclient-4.4.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

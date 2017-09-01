@@ -156,17 +156,7 @@ public class RetwisRepository {
 			p.setReplyUid(null);
 			p.setReplyPid(null);
 		}
-		
-		System.out.println("Post printed:");
-		System.out.println("content " + p.getContent());
-		System.out.println("repPid  " + p.getReplyPid());
-		System.out.println("repUid  " + p.getReplyUid());
-		System.out.println("time    " + p.getTime());
-		System.out.println("uid     " + p.getUid());
-		
-		System.out.println("pid     " + pid);
-		System.out.println("repName " + replyName);
-		
+				
 		// add post
 		post(pid).putAll(postMapper.toHash(p));
 		

@@ -125,8 +125,8 @@ public class RetwisController {
 
 	@RequestMapping(value = "/!{name}", method = RequestMethod.GET)
 	public String posts(@PathVariable String name, @RequestParam(required = false) String replyto, @RequestParam(required = false) String replypid, @RequestParam(required = false) Integer page, Model model) {
-		
 		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
+		
 			
 		checkUser(name);
 		String targetUid = retwis.findUid(name);
@@ -173,22 +173,9 @@ public class RetwisController {
 	}
 	
 	@RequestMapping(value = "/!{name}/block", method = RequestMethod.GET)
-	public String block(@PathVariable String name, @RequestParam("delay") String delay, 
-												@RequestParam(value = "blockedBy", required = false) String blockedBy,
-												Model model){
-
-		System.out.println(blockedBy+ ": blocks" + name + " with " + delay + " s of delay");
-		
-		if(StringUtils.hasText(blockedBy)){
-			System.out.println("from " + retwis.findUid(blockedBy)  +": Calling block(" + RetwisSecurity.getUid() +", " + retwis.findUid(name) + ", " + Integer.parseInt(delay) + ")");
-			block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
-			return "redirect:/!" + name;			
-		}
-		
-		else {
-			block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
-			return "redirect:/!" + name;
-		}
+	public String block(@PathVariable String name, @RequestParam("delay") String delay, Model model){		
+		block(RetwisSecurity.getUid(), retwis.findUid(name), Integer.parseInt(delay));
+		return "redirect:/!" + name;
 	}
 	
 	@RequestMapping(value = "/!{name}/unblock", method = RequestMethod.GET)
@@ -200,8 +187,20 @@ public class RetwisController {
 	@RequestMapping("/!{name}/read")
 	@ResponseBody
 	public String read(@PathVariable String name, Model model){
+				
 		Range range = new Range();
-		return (retwis.getPosts(retwis.findUid(name), range).get(0).getContent());
+		String latestPost;
+		try{
+			latestPost = (retwis.getPosts(retwis.findUid(name), range).get(0).getContent());
+		} catch (IndexOutOfBoundsException e) {
+			latestPost = null;
+		}
+		if(!StringUtils.hasText(latestPost)){
+			latestPost = "empty";
+		}
+		
+		
+		return latestPost;
 	}
 
 	@RequestMapping("/!{name}/follow")
@@ -244,7 +243,6 @@ public class RetwisController {
 	@RequestMapping("/timeline")
 	public String timeline(@RequestParam(required = false) Integer page, Model model) {
 		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
-		
 		// sanitize page attribute
 		page = (page != null ? Math.abs(page) : 1);
 		model.addAttribute("page", page + 1);

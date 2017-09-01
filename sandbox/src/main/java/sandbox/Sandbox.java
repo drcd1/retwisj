@@ -1,15 +1,22 @@
 package sandbox;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
@@ -20,28 +27,25 @@ public class Sandbox implements CommandLineRunner {
 	List<String> replicas = new ArrayList<String>();
 	List<User> users = new ArrayList<User>()	;
 	
-	final int n_users = 50;
-	final int actions = 10;
-	final double block = 0.1;
-	final double read = 0.8;
-	final double post = 0.1;
+	final int n_users = 10;
+	final int actions = 50;
+	final double block = 0.3;
+	final double read = 0.4;
+	final double post = 0.3;
+	final double delayChance = 0.2;
+	final int delay = 20;
 	
 	public void run(String... args){
-		System.out.println("Running...");
-
 		String replicaList = System.getenv("RET_LINKS");
 		
 		Set<Thread> threads = new HashSet<Thread>();
 		
 		for(String replica: replicaList.split(":")){
 			replicas.add(replica);
-		}
-		
-		
-
-		System.out.println("Running2...");
+		}		
 		
 		for(int i = 0; i<n_users; i++){
+			
 			List<String> names = new ArrayList<String>();
 			for(int j = 0; j<n_users; j++){
 				if (i != j)
@@ -53,13 +57,11 @@ public class Sandbox implements CommandLineRunner {
 			u.signUp();
 		}
 		try {
+			// wait for signups to propagate across replicas
 			TimeUnit.SECONDS.sleep(30);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		System.out.println("Running3...");
 		
 		for(User u: users){
 			Thread thread = new Thread(new UserAction(u));
@@ -67,8 +69,7 @@ public class Sandbox implements CommandLineRunner {
 			thread.start();
 		}
 		
-		System.out.println("Running4...");
-		
+		//wait for treads
 		for(Thread thread: threads){
 			try {
 				thread.join();
@@ -77,11 +78,19 @@ public class Sandbox implements CommandLineRunner {
 			}
 		}
 		
-		System.out.println("Running5...");
+		int reads=0;
+		int badReads=0;
 		
 		for(User user: users){
-			System.out.println("LOG FOR USER " + user.name + ":\n" +user.getLog());
+			System.out.println("LOG FOR USER " + user.name + " in replica " + user.replica + ":\n" +user.getLog()+"\n");
+			reads += user.getReads();
+			badReads += user.getBadReads();
 		}
+		
+		System.out.println("\n--------SUMMARY---------");
+		System.out.println("\n  Of " + reads + " reads, " + badReads + " were bad reads.");
+		System.out.println("\n  Failure Rate: " + (double)badReads/reads*100 + "%.");
+		
 		
 		
 	
@@ -101,24 +110,34 @@ public class Sandbox implements CommandLineRunner {
 			for(int i = 0; i<actions; i++){
 				double p = Math.random();
 				if(p<block){
-					user.block(user.getUnblockedUsers().get((int)Math.random()*user.getUnblockedUsers().size()), 0);
-					user.log("-block\n");
+					if(user.getUnblockedUsers().size()>0){
+						if(Math.random()<delayChance)
+							user.block(user.getUnblockedUsers().get((int)Math.random()*user.getUnblockedUsers().size()), delay);
+						else
+							user.block(user.getUnblockedUsers().get((int)Math.random()*user.getUnblockedUsers().size()), 0);
+						user.log("-block\n");
+					} else {
+						user.log("-block tried and failed (already blocked every user)");
+					}
 				}
 				else if(p<block+read){
 					user.log("-read\n");
+					
+					//reads first post from every user
+					
 					for(String name: user.getBlockedUsers()){
 						String post = user.read(name);
 						if(post!=null)
-							if (post.contains("!" + name + "!" ))
-								user.log(": "+ name + " made unsafe post\n");
+							if (post.contains("!" + user.getName() + "!" ))
+								user.log("   : "+ name + " made unsafe post\n");
 						
 					}
 					
 					for(String name: user.getUnblockedUsers()){
 						String post = user.read(name);
 						if(post!=null)
-							if (post.contains("!" + name + "!" ))
-								user.log(": "+ name + " made unsafe post\n");
+							if (post.contains("!" + user.getName() + "!" ))
+								user.log("   : "+ name + " made unsafe post\n");
 						
 					}
 					
@@ -134,16 +153,22 @@ public class Sandbox implements CommandLineRunner {
 	public class User{
 		private List<String> unblockedUsers;
 		private List<String> blockedUsers = new ArrayList<String>();
-		private RestTemplate rest = new RestTemplate();
+		private RestTemplate rest;
 		private String name;
 		private String replica;
 		private String log = "";
 		private List<String> context;
+		private int reads;
+		private int badReads;
 		
 		public User(String name, String replica, List<String> unblockedUsers){
 			this.name = name; 
 			this.replica = replica;
 			this.unblockedUsers = unblockedUsers;
+
+			rest = new RestTemplate();
+
+			
 		}
 		
 		public List<String> getUnblockedUsers(){
@@ -167,13 +192,13 @@ public class Sandbox implements CommandLineRunner {
 		}
 		
 		public void signIn(){
-			
 			HttpEntity<String> response = rest.exchange("http://"+ this.replica + ":8080/retwisj/signIn?name="+name+"&pass="+name,
-						HttpMethod.GET, 
+						HttpMethod.POST, 
 						null,
 						String.class);
 			
 			context = response.getHeaders().get("Set-Cookie");
+			System.out.println("All cookies: " + context);
 		}
 		
 		public void signUp(){
@@ -191,7 +216,7 @@ public class Sandbox implements CommandLineRunner {
 			}
 			
 			MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-			map.add("content", content);
+			map.add("content", "postContent: " + content);
 			map.add("replyTo", "");
 			map.add("replyPid", "");
 			
@@ -202,28 +227,49 @@ public class Sandbox implements CommandLineRunner {
 		public void block(String userToBlock, int delay){
 		
 			if(!blockedUsers.contains(userToBlock)){
-				rest.getForObject("http://" + this.replica + ":8080/retwisj/!" + userToBlock + "/block?delay=" + delay + "&blockedBy=" + this.name,
-							 	String.class);
+				
+				HttpHeaders headers = new HttpHeaders();
+				for(String cookie: context){
+					headers.add("Cookie", cookie.split(";")[0].trim());
+				}				
+				
+				String url = "http://" + this.replica + ":8080/retwisj/!" + userToBlock + "/block?delay=" + delay;
+				
+				rest.exchange(url, HttpMethod.GET, new HttpEntity<String>(headers),String.class);
 				this.blockedUsers.add(userToBlock);
 				this.unblockedUsers.remove(userToBlock);
 			}
 		}
-		
+		/*
+		 * reads the first post of an user
+		 */
 		public String read(String userToRead){
 			HttpHeaders headers = new HttpHeaders();
-			for(String cookie: context)
-				headers.add("Cookie", cookie);
-			/* Is not working!
-			 * 
-			 * 
-			System.out.println(rest.exchange("http://" + this.replica + ":8080/retwisj/!" + userToRead + "/read", 
+			for(String cookie: context){
+				headers.add("Cookie", cookie.split(";")[0].trim());
+			}
+			reads++;
+			
+			
+			String post = (rest.exchange("http://" + this.replica + ":8080/retwisj/!" + userToRead + "/read", 
 					HttpMethod.GET,
 					new HttpEntity<String>(headers),
 					String.class).getBody());
-			*/
 			
-			return "aa";
+			if(post!=null)
+				if (post.contains("!" + getName() + "!" ))
+					badReads++;
+			
+			return post;
+			
 		}
 		
+		public int getReads(){
+			return reads;
+		}
+		
+		public int getBadReads(){
+			return badReads;
+		}
 	}
 }

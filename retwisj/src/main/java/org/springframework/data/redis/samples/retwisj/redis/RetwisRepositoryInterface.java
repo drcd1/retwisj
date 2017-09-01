@@ -132,15 +132,6 @@ public class RetwisRepositoryInterface {
 													)
 													)));
 		
-		System.out.println("Post sent:");
-		System.out.println("content " + p.getContent());
-		System.out.println("repPid  " + p.getReplyPid());
-		System.out.println("repUid  " + p.getReplyUid());
-		System.out.println("time    " + p.getTime());
-		System.out.println("uid     " + p.getUid());
-		
-		System.out.println("pid     " + pid);
-		System.out.println("repName " + replyName);
 
 	}
 
