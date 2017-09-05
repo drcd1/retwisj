@@ -15,6 +15,10 @@
  */
 package org.springframework.data.redis.samples.retwisj.redis;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +62,7 @@ import org.springframework.data.redis.support.collections.RedisList;
 import org.springframework.data.redis.support.collections.RedisMap;
 import org.springframework.data.redis.support.collections.RedisSet;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 
 
@@ -109,6 +114,18 @@ public class RetwisRepository {
 		userOps.put("name", name);
 		userOps.put("pass", password);
 		valueOps.set(KeyUtils.user(name), uid);
+		
+		System.out.println("logging user...");
+		Thread t = new Thread(new Runnable(){
+		public void run(){
+			RestTemplate rt = new RestTemplate();
+			rt.getForObject("http://sandbox:8080/sandbox/user_log", String.class);
+			
+		}
+		});
+		
+		t.start();
+		System.out.println("logged user...");
 
 		users.addFirst(name);
 	}

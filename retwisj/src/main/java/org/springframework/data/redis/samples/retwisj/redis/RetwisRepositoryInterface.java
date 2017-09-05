@@ -36,6 +36,7 @@ import org.springframework.data.redis.samples.retwisj.replication.BroadcasterGRP
 import org.springframework.data.redis.samples.retwisj.replication.BroadcasterRest;
 import org.springframework.data.redis.samples.retwisj.web.WebPost;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 
 
@@ -54,7 +55,7 @@ public class RetwisRepositoryInterface {
 	@Inject
 	public RetwisRepositoryInterface(RetwisRepository retwis) {
 		this.retwis = retwis;	
-		broadcaster = new BroadcasterRest();
+		broadcaster = new BroadcasterGRPC();
 	}
 
 	public String addUser(String name, String password) {
@@ -62,7 +63,7 @@ public class RetwisRepositoryInterface {
 		retwis.addUser(name, password, uid);
 		broadcaster.broadcast(new CommandData(CommandData.Type.ADD_USER, 
 				new ArrayList<String>(Arrays.asList(name, password, uid))));
-		
+			
 		return addAuth(name);
 	}
 		

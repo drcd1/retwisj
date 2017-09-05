@@ -9,6 +9,7 @@ import org.springframework.data.redis.samples.retwisj.replication.Broadcaster;
 import org.springframework.data.redis.samples.retwisj.replication.ReceiverGrpc;
 import org.springframework.data.redis.samples.retwisj.replication.ReceiverThrift;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class Starter{
@@ -44,6 +45,19 @@ public class Starter{
 		new Thread(receiveGrpc).start();
 		
 		retwis.initializeBroadcaster();
+		
+		System.out.println("logging replica...");
+		Thread t = new Thread(new Runnable(){
+		public void run(){
+			RestTemplate rt = new RestTemplate();
+			rt.getForObject("http://sandbox:8080/sandbox/replica_log", String.class);
+			
+		}
+		});
+		
+		t.start();
+		System.out.println("logged replica...");
+		
 	}
 }
 

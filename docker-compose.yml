@@ -9,7 +9,7 @@ services:
      - '8084'                             
      - '9090'                             
     environment:                 
-      - ACL_LINKS=acl-us:acl-jp
+      - ACL_LINKS=acl-us
       - MY_NAME=acl-eu
   redis-acl-eu:           
     image: redis            
@@ -23,7 +23,7 @@ services:
       - redis-ret-eu:redis 
       - acl-eu:acl         
     environment:                 
-      - RET_LINKS=retwisj-us:retwisj-jp
+      - RET_LINKS=retwisj-us
       - MY_NAME=retwisj-eu
   redis-ret-eu:
     image: redis 
@@ -39,7 +39,7 @@ services:
      - '8084'                             
      - '9090'                             
     environment:                 
-      - ACL_LINKS=acl-eu:acl-jp
+      - ACL_LINKS=acl-eu
       - MY_NAME=acl-us
   redis-acl-us:           
     image: redis            
@@ -53,45 +53,18 @@ services:
       - redis-ret-us:redis 
       - acl-us:acl         
     environment:                 
-      - RET_LINKS=retwisj-eu:retwisj-jp
+      - RET_LINKS=retwisj-eu
       - MY_NAME=retwisj-us
   redis-ret-us:
     image: redis 
     expose:      
       - '6379'   
 
-  acl-jp:                 
-    build: ./acl                          
-    links:                                
-     - redis-acl-jp:redis2
-    expose:                               
-     - '8080'                             
-     - '8084'                             
-     - '9090'                             
-    environment:                 
-      - ACL_LINKS=acl-eu:acl-us
-      - MY_NAME=acl-jp
-  redis-acl-jp:           
-    image: redis            
-    expose:                 
-      - '6379'              
-  retwisj-jp:                   
-    build: ./retwisj         
-    ports:                   
-      - '8082:8080'  
-    links:                   
-      - redis-ret-jp:redis 
-      - acl-jp:acl         
-    environment:                 
-      - RET_LINKS=retwisj-eu:retwisj-us
-      - MY_NAME=retwisj-jp
-  redis-ret-jp:
-    image: redis 
-    expose:      
-      - '6379'   
-
   sandbox:           
     build: ./sandbox 
-    tty: true        
+    expose:
+     - '8080'
+    ports: 
+     - '1010:8080'
     environment:       
-      - RET_LINKS=retwisj-eu:retwisj-us:retwisj-jp
+      - RET_LINKS=retwisj-eu:retwisj-us

@@ -1,31 +1,24 @@
 package sandbox;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-@Component
-public class Sandbox implements CommandLineRunner {
+@RestController
+public class Sandbox {
 	List<String> replicas = new ArrayList<String>();
-	List<User> users = new ArrayList<User>()	;
+	List<User> users = new ArrayList<User>();
 	
 	final int n_users = 10;
 	final int actions = 50;
@@ -35,16 +28,51 @@ public class Sandbox implements CommandLineRunner {
 	final double delayChance = 0.2;
 	final int delay = 20;
 	
-	public void run(String... args){
+	private int logs = 0;
+	private int logsOfUsers = 0;
+	
+	public Sandbox(){
 		String replicaList = System.getenv("RET_LINKS");
-		
-		Set<Thread> threads = new HashSet<Thread>();
 		
 		for(String replica: replicaList.split(":")){
 			replicas.add(replica);
 		}		
+	}
+	
+	@RequestMapping("/replica_log")	
+	public String replicaLog(){
+		log();
+		return "success";
+	}
+	
+	@RequestMapping("/user_log")
+	public String userLog(){
+		logUser();
+		return "success";
+	}
+	
+	public synchronized void log(){
+		logs++;
+		System.out.println("ONE REPLICA LOGGED!");
+		if(logs == replicas.size() ){
+			registerUsers();
+		}
+	}
+	
+	public synchronized void logUser(){
+		logsOfUsers++;
+
+		System.out.println("ONE USER LOGGED!");
+		if(logsOfUsers == n_users*replicas.size()){
+			runTests();
+		}
+	}
+	
+	
+	public void registerUsers(){
 		
 		for(int i = 0; i<n_users; i++){
+			System.out.println("Registering user " + i);
 			
 			List<String> names = new ArrayList<String>();
 			for(int j = 0; j<n_users; j++){
@@ -56,12 +84,10 @@ public class Sandbox implements CommandLineRunner {
 			users.add(u);
 			u.signUp();
 		}
-		try {
-			// wait for signups to propagate across replicas
-			TimeUnit.SECONDS.sleep(30);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
+	}
+	
+	public void runTests(){
+		Set<Thread> threads = new HashSet<Thread>();
 		
 		for(User u: users){
 			Thread thread = new Thread(new UserAction(u));
@@ -91,9 +117,6 @@ public class Sandbox implements CommandLineRunner {
 		System.out.println("\n  Of " + reads + " reads, " + badReads + " were bad reads.");
 		System.out.println("\n  Failure Rate: " + (double)badReads/reads*100 + "%.");
 		
-		
-		
-	
 		
 	}
 	

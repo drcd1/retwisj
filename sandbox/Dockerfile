@@ -1,5 +1,5 @@
 # Pull base image
-FROM openjdk:8-jre-alpine
+FROM tomcat:8-jre8-alpine
 
 LABEL maintainer="jfloff@inesc-id.pt"
 LABEL maintainer="duartercorreia@tecnico.ulisboa.pt"
@@ -41,13 +41,14 @@ RUN set -o errexit -o nounset \
 		openssl \
 		unzip \
 	\
+	\
 	&& apk --no-cache add ca-certificates \
 	&& wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://raw.githubusercontent.com/sgerrand/alpine-pkg-glibc/master/sgerrand.rsa.pub \
 	&& wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk \
 	&& apk add glibc-2.23-r3.apk \
-	\
-	\
 	&& echo "Downloading Gradle" \
+	\
+	\
 	&& wget -O gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
 	\
 	&& echo "Checking download hash" \
@@ -70,11 +71,36 @@ RUN set -o errexit -o nounset \
 
 
 
+
+
+
+
+
+
+
+RUN apk update \
+	&& apk add flex automake autoconf libtool pkgconf bison libssl1.0 libevent-dev gcc g++ make \
+	&& cd /  \
+	&& wget http://archive.apache.org/dist/ant/binaries/apache-ant-1.7.0-bin.tar.gz \
+	&& tar -xvf apache-ant-1.7.0-bin.tar.gz  \
+	&& export PATH=$PATH:/apache-ant-1.7.0/bin \
+	&& wget http://www-eu.apache.org/dist/thrift/0.9.3/thrift-0.9.3.tar.gz \
+	&& tar -xvf thrift-0.9.3.tar.gz \
+	&& cd  thrift-0.9.3/ \
+	&& ./configure \
+	&& make \
+	&& make install
+
+
+
+
+
 ###################
-# Build sandbox
+# Build RetwisJ
 #
 WORKDIR /home/sandbox
 ADD . /home/sandbox
-RUN gradle build
+RUN gradle build && \
+    cp build/libs/sandbox.war /usr/local/tomcat/webapps/
 
 #COPY build/libs/sandbox.war /usr/local/tomcat/webapps/
