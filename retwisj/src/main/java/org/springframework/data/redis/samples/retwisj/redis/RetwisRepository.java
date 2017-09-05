@@ -92,6 +92,7 @@ public class RetwisRepository {
 
 	private final HashMapper<Post, String, String> postMapper = new DecoratingStringHashMapper<Post>(
 			new JacksonHashMapper<Post>(Post.class));
+	private boolean run_tests;
 
 	@Inject
 	public RetwisRepository(StringRedisTemplate template) {
@@ -103,6 +104,7 @@ public class RetwisRepository {
 		userIdCounter = new RedisAtomicLong(KeyUtils.globalUid(), template.getConnectionFactory());
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
 		blocked_by = new HashSet<String>();
+		run_tests = System.getenv("RUN_TESTS").equals("1");
 	}
 
 	public void addUser(String name, String password, String uid) {
@@ -115,18 +117,20 @@ public class RetwisRepository {
 		userOps.put("pass", password);
 		valueOps.set(KeyUtils.user(name), uid);
 		
-		System.out.println("logging user...");
-		Thread t = new Thread(new Runnable(){
-		public void run(){
-			RestTemplate rt = new RestTemplate();
-			rt.getForObject("http://sandbox:8080/sandbox/user_log", String.class);
-			
-		}
-		});
 		
-		t.start();
-		System.out.println("logged user...");
-
+		if(run_tests){
+			System.out.println("logging user...");
+			Thread t = new Thread(new Runnable(){
+			public void run(){
+				RestTemplate rt = new RestTemplate();
+				rt.getForObject("http://sandbox:8080/sandbox/user_log", String.class);
+				
+			}
+			});
+			
+			t.start();
+			System.out.println("logged user...");
+		}
 		users.addFirst(name);
 	}
 	

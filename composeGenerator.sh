@@ -6,11 +6,29 @@ let port=8080
 echo "version: '3'">docker-compose.yml
 echo "services:">>docker-compose.yml
 
+runTests=0
+
 if [ $# -eq 0 ];
     then
         zone_list=("eu" "us")
     else
-        zone_list=( "$@" )
+        while [[ $# -gt 0 ]]
+		do
+			key=$1
+		case $key in
+			'--test' )
+				runTests=1
+			;;
+			* )
+				zone_list+=($key)
+		esac
+		shift
+		done
+fi
+
+if [ ${#zone_list[@]} -eq 0 ];
+	then
+		zone_list=("eu" "us")
 fi
 
 n_zones=${#zone_list[@]}
@@ -61,11 +79,6 @@ do
     echo "      - ACL_LINKS="$acl_links>>docker-compose.yml
     echo "      - MY_NAME=acl-"${zone_list[$i]}>>docker-compose.yml
     
-    
-    
-    
-    
-    
     echo "  redis-acl-"${zone_list[$i]}":           ">>docker-compose.yml
     echo "    image: redis            ">>docker-compose.yml
     echo "    expose:                 ">>docker-compose.yml
@@ -81,6 +94,7 @@ do
     echo "    environment:                 ">>docker-compose.yml    
     echo "      - RET_LINKS="$ret_links>>docker-compose.yml
     echo "      - MY_NAME=retwisj-"${zone_list[$i]}>>docker-compose.yml
+	echo "      - RUN_TESTS="${runTests}>>docker-compose.yml
  
 
     echo "  redis-ret-"${zone_list[$i]}":">>docker-compose.yml
@@ -100,9 +114,12 @@ do
 done
 ret_links=$ret_links"retwisj-"${zone_list[$n_zones-1]}
 
+if [ "$runTests" -eq 1 ];
+then
 echo "  sandbox:           ">>docker-compose.yml
 echo "    build: ./sandbox ">>docker-compose.yml
-echo "    tty: true        ">>docker-compose.yml
+echo "    expose:        ">>docker-compose.yml
+echo "      - '8080'        ">>docker-compose.yml
 echo "    environment:       ">>docker-compose.yml
 echo "      - RET_LINKS="$ret_links>>docker-compose.yml
-
+fi

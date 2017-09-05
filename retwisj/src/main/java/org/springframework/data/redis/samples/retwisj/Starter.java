@@ -45,18 +45,19 @@ public class Starter{
 		new Thread(receiveGrpc).start();
 		
 		retwis.initializeBroadcaster();
+		if(System.getenv("RUN_TESTS").equals("1")){
+			System.out.println("logging replica...");
+			Thread t = new Thread(new Runnable(){
+				public void run(){
+					RestTemplate rt = new RestTemplate();
+					rt.getForObject("http://sandbox:8080/sandbox/replica_log", String.class);
+				
+				}
+			});
 		
-		System.out.println("logging replica...");
-		Thread t = new Thread(new Runnable(){
-		public void run(){
-			RestTemplate rt = new RestTemplate();
-			rt.getForObject("http://sandbox:8080/sandbox/replica_log", String.class);
-			
+			t.start();
+			System.out.println("logged replica...");
 		}
-		});
-		
-		t.start();
-		System.out.println("logged replica...");
 		
 	}
 }

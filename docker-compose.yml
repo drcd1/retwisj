@@ -25,6 +25,7 @@ services:
     environment:                 
       - RET_LINKS=retwisj-us
       - MY_NAME=retwisj-eu
+      - RUN_TESTS=1
   redis-ret-eu:
     image: redis 
     expose:      
@@ -55,6 +56,7 @@ services:
     environment:                 
       - RET_LINKS=retwisj-eu
       - MY_NAME=retwisj-us
+      - RUN_TESTS=1
   redis-ret-us:
     image: redis 
     expose:      
@@ -62,9 +64,7 @@ services:
 
   sandbox:           
     build: ./sandbox 
-    expose:
-     - '8080'
-    ports: 
-     - '1010:8080'
+    expose:        
+      - '8080'        
     environment:       
       - RET_LINKS=retwisj-eu:retwisj-us
