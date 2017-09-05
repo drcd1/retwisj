@@ -65,7 +65,7 @@ public class RetwisController {
 	@Autowired
 	public RetwisController(RetwisRepositoryInterface twitter) {
 		this.retwis = twitter;
-		acl = new ACLInterfaceGRPC();
+		acl = new ACLInterfaceThrift();
 				
 		System.out.println("generatedController..");
 	}

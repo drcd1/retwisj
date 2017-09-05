@@ -22,9 +22,9 @@ public class Sandbox {
 	
 	final int n_users = 10;
 	final int actions = 50;
-	final double block = 0.3;
-	final double read = 0.4;
-	final double post = 0.3;
+	final double block = 0.2;
+	final double read = 0.6;
+	final double post = 0.2;
 	final double delayChance = 0.2;
 	final int delay = 20;
 	

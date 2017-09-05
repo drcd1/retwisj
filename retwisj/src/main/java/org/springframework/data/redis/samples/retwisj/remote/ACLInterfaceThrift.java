@@ -11,6 +11,7 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TFramedTransport;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,25 +35,8 @@ import java.util.logging.Logger;
 
 public class ACLInterfaceThrift implements ACLInterface {
 	
-	private TTransport transport;
-	
-	private TProtocol protocol;
-	
-	private AclService.Client client;
-	
-	private boolean open = false;
-	
-	public ACLInterfaceThrift(){
-		try {
-			transport = new TSocket("acl", 9090);
 			
-			
-		 } catch (Exception x) {
-		      x.printStackTrace();
-		 }
-	}
-	
-	public boolean openTransport(){
+	public boolean openTransport(TTransport transport){
 		try{
 			transport.open();
 		} catch(Exception e){
@@ -61,8 +45,10 @@ public class ACLInterfaceThrift implements ACLInterface {
 		return true;
 	}
 	
-	public void start(){
-		while (!openTransport()){
+	public AclService.Client getNewClient(){
+		
+		TTransport transport = new TFramedTransport(new TSocket("acl", 9090));
+		while (!openTransport(transport)){
 			try{
 				TimeUnit.SECONDS.sleep(10);
 			} catch(Exception e){
@@ -71,21 +57,15 @@ public class ACLInterfaceThrift implements ACLInterface {
 		}
 	  
 
-		protocol = new  TBinaryProtocol(transport);
-		client = new AclService.Client(protocol);
-      
-     	open = true;
-     	
-      
+		TProtocol protocol = new  TBinaryProtocol(transport);
+		return new AclService.Client(protocol);
+           
 	}
 	
 	@Override
 	public void block(String uid, String targetUid, int delay) {
-		if(!open){
-			start();
-		}
 		try {
-			client.block(uid, targetUid, delay);
+			getNewClient().block(uid, targetUid, delay);
 		} catch (TException x) {
 		      x.printStackTrace();
 		}
@@ -94,11 +74,8 @@ public class ACLInterfaceThrift implements ACLInterface {
 
 	@Override
 	public void unblock(String uid, String targetUid) {
-		if(!open){
-			start();
-		}
 		try {
-			client.unblock(uid, targetUid);
+			getNewClient().unblock(uid, targetUid);
 		} catch (TException x) {
 		      x.printStackTrace();
 		}
@@ -107,11 +84,8 @@ public class ACLInterfaceThrift implements ACLInterface {
 
 	@Override
 	public Set<String> blocks(String uid) {
-		if(!open){
-			start();
-		}
 		try {
-			Set<String> tmp = client.blocks(uid);			
+			Set<String> tmp = getNewClient().blocks(uid);			
 			return tmp;
 		}catch (TException x) {
 		      x.printStackTrace();
@@ -124,11 +98,8 @@ public class ACLInterfaceThrift implements ACLInterface {
 	public Set<String> blockedBy(String uid) {
 		if(uid==null)
 			return new HashSet<String>();
-		if(!open){
-			start();
-		}
 		try{
-			Set<String> tmp = client.blockedBy(uid);			
+			Set<String> tmp = getNewClient().blockedBy(uid);			
 			return tmp;
 		} catch (TException x) {
 		      x.printStackTrace();

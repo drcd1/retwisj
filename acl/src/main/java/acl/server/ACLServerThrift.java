@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.server.TSimpleServer;
-import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.server.TNonblockingServer;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.apache.thrift.transport.TNonblockingServerTransport;
 
 import acl.command.*;
 
@@ -38,8 +38,8 @@ public class ACLServerThrift{
 		handler = new AclHandler(acl);
 		processor = new AclService.Processor<AclService.Iface>(handler);
 
-		TServerTransport serverTransport = new TServerSocket(9090);
-		TServer server = new TSimpleServer(new Args(serverTransport).processor(processor));
+		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(9090);
+		TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(processor));
 
 		server.serve();
 		
