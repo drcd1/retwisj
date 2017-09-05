@@ -20,24 +20,14 @@ import org.springframework.data.redis.samples.retwisj.command.*;
 
 public class BroadcasterThrift extends Broadcaster {
 
-	private HashSet<BroadcastService.Client> replicas = new HashSet<BroadcastService.Client>();
+	private HashSet<String> replicas = new HashSet<String>();
 	
 	
 	private void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
-			TTransport transport = new TFramedTransport(new TSocket(hostAddr, 5052));
-			while(!openTransport(transport)){
-				System.out.println("Sleeping...");
-				
-				TimeUnit.SECONDS.sleep(5);
-					
-			}
-
-				
-			TProtocol protocol = new TBinaryProtocol(transport);
-			BroadcastService.Client cl = new BroadcastService.Client(protocol);
-			replicas.add(cl);
+			
+			replicas.add(hostAddr);
 				
 			System.out.println("Added " + hostAddr);
 		}catch(Exception e){
@@ -60,8 +50,8 @@ public class BroadcasterThrift extends Broadcaster {
 	public void broadcast(CommandData data){
 		BroadcastCommand cmd = new BroadcastCommand(CommandData.getIntFromType(data.getCmd()),
 													data.getArguments());
-		for(BroadcastService.Client cl: replicas){
-			ThreadMethod r = new ThreadMethod(cl, cmd);
+		for(String replica: replicas){			
+			ThreadMethod r = new ThreadMethod(replica, cmd);
 			new Thread(r).start();
 		}
 	}
@@ -74,15 +64,25 @@ public class BroadcasterThrift extends Broadcaster {
 	}
 	
 	class ThreadMethod implements Runnable{
-		ThreadMethod(BroadcastService.Client cl, BroadcastCommand cmd){
-			this.cl = cl;
+		ThreadMethod(String replica, BroadcastCommand cmd){
+			this.replica = replica;
 			this.cmd = cmd;
 		}
-		private BroadcastService.Client cl;
+		private String replica;
 		private BroadcastCommand cmd;
 		
 		public void run(){
 			try{
+				TTransport transport = new TFramedTransport(new TSocket(replica, 5052));
+				while(!openTransport(transport)){
+					System.out.println("Sleeping...");
+					
+					TimeUnit.SECONDS.sleep(5);
+						
+				}					
+				TProtocol protocol = new TBinaryProtocol(transport);
+				BroadcastService.Client cl = new BroadcastService.Client(protocol);
+				
 				cl.send(cmd);
 			} catch(Exception e){
 				e.printStackTrace();

@@ -55,7 +55,7 @@ public class RetwisRepositoryInterface {
 	@Inject
 	public RetwisRepositoryInterface(RetwisRepository retwis) {
 		this.retwis = retwis;	
-		broadcaster = new BroadcasterGRPC();
+		broadcaster = new BroadcasterThrift();
 	}
 
 	public String addUser(String name, String password) {
