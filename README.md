@@ -2,7 +2,7 @@
 ## What is this project?
 
 This project is based on **Retwisj**, the java implentation of the twitter clone, **Retwis**, 
-which served as a demo for **Spring Data Redis**. (LINK)
+which served as a demo for **Spring Data Redis**. (https://github.com/spring-projects/spring-data-keyvalue-examples/tree/master/retwisj)
 It has increased functionality: It contains an Access Control List, which enables users to block other users and supports replication of each microservice.
 
 Our changes subdivide the aplication in two microservices: Retwisj, which maintains the previous functionality, 
@@ -21,13 +21,13 @@ The goal of this project is to better allow studying consistency when the system
 #### How to Run?
 
 1. Run the script `composeGenereator.sh`. Can be provided with a *list of arguments*, which are the names of the replicas
-to be generated. If run without arguments, it will default to generating two replicas (**"US"** and **"EU"**).
+to be generated. If run without arguments, it will default to generating two replicas (**"us"** and **"eu"**).
 1. Run the command `docker-compose up --build`.
 1. Using a browser, open the ports corresponding to any of the **Retwisj** replicas.
 
 
 ## Retwisj
-Although the functionallity was mostly kept from the original (see here: LINK), it was necessary to make some changes:
+Although the functionallity was mostly kept from the original (see here: https://docs.spring.io/spring-data/data-keyvalue/examples/retwisj/current/), it was necessary to make some changes:
 The MVC Controller now has two extra methods: **block** and **unblock**, for blocking and unblocking users.
 Because of the added functionality, the views had to be changed: When the user is 
 viewing another user's page, there's a button for blocking and unblocking users.
@@ -69,7 +69,7 @@ When building the docker images, we pass the reference of the oter replicas to e
 
 Because **Retwisj** was not built with replication in mind, several methods in `RetwisRepository` have been refactored, with their functionality relocated to `RetwisRepositoryInterface`, which now acts as a *façade* for `RetwisRepository`. For example, the method  `addUser()`, which was called when a user registered into the app, did two things: It registered the user and signed him in. Because we don't want to replicate the information of which user is signed in, we split this method into two. `RetwisRepositoryInterface` gains the responsability of calling both methods when necessary.
 
-#### Note:
+### Note:
 For testing purposes, we've added a delay parameter when broadcasting changes from ACL, thus making the replication different across both microservices.
 
 ## The Problem
@@ -84,7 +84,7 @@ In the current state of our system, because the replication of posts (in **Retwi
 replication of blocks (in **ACL**) is done independently, we have no way of knowing which 
 information is replicated first.
 
-#### Case Study
+### Case Study
 We have two replicas of the system (**US** and **EU**), and two users 
 (**Alice**, in the **US**, and **Eve**, in **EU**).
 
@@ -132,7 +132,7 @@ microsservices, *and there can be delays in their communication*). The problem d
 because **Retwisj** communicates with **ACL** *synchronously*. Their communication must be *synchronous*, for
 we must guarantee that users ***read their own writes***.
 
-#### Reproducing the problem
+### Reproducing the problem
 
 We've added the option of "Blocking with delay". When running the Web Application, in a user's 
 homepage, there's a button that says "Block (with delay)". This button performs the usual
@@ -153,39 +153,35 @@ The following sequence of images showcases the problem described above:
 *Figure 3: Eve sees Alice's post **(EU)*** | *Figure 4: After a while, Eve no longer sees the post **(EU)***
 
 ## The Sandbox (temporary name)
-The sandbox is our client simulation application. It simulates many users interacting with the system. The following parameters can be customized in a configuration file:
+The sandbox is our client simulation application. It simulates many users interacting with the system. The following parameters can be customized in a configuration file at `src/java/resources/sandbox.properties`:
 
 - **n_users:** the number of users to simulate.
 - **actions:** the number of actions each user performs on the system.
-- **block:** the probability of a user blocking
-- **post:** the probability  of a user posting
-- **read:** the probability  of a user reading
+- **block:** the probability of a user blocking. A user always posts after blocking.
+- **read:** the probability  of a user reading another user.
 - **delay_chance:** the odds of there being delay in the replication of "block" actions.
 - **delay:** the number of seconds that the replication of "block" actions is delayed by.
 
-#### The simulation plan
+### The simulation plan
 
 The sandbox starts by setting up all users. First every user is signed up onto a single replica. When all replicas receive the information, the sandbox creates a new thread for each user and randomly assigns a replica to it. 
 
-Then, for every user, we perform the number of actions it's supposed to perform over the replica that was previously assigned to it.
-Every time we perform an action, we randomly select the action to be performed (block, post or read) according the probabilities defined in the configuration file.
+Then, for every user, we perform the number of actions defined in the configuration file over the replica that was previously assigned to it.
+Every time we perform an action, we randomly select the action to be performed (block or read) according the probabilities defined in the configuration file.
 
-#### The actions
+### The actions
 
-##### Block
-Randomly selects an unblocked user and blocks it. If there are no users left unblocked, it does nothing (but still counts as an action).
+#### Block
+Randomly selects an unblocked user and blocks it. It then makes a post. If there are no users left unblocked, it does nothing (but still counts as an action).
 
-##### Post
-Posts to the system. The post contains the name of the users blocked so far.
-
-##### Read
-Reads the latest post of every user (counts as one read per user). If the post contains the name of the user executing the action, we count one bad read.
+#### Read
+Reads the latest post of every user (counts as one read per user) that has blocked him and is in a different replica. If the post contains the name of the user executing the action, we count one bad read.
 
 In the end, we print a log of the actions taken by every user, and we print a summary.
 
 #### Setting up
-To run the sandbox, run the script composeGenerator.sh with the option --test.
-This runs the tests upon starting the system with docker-compose.
+To run the sandbox, run the script `composeGenerator.sh` with the option `--test`.
+This runs the tests upon starting the system with *docker-compose*.
 
-Note: because retwisj doesn't allow for user/post deletion, changes made to the system remain there until the redis images are removed
++Note: because retwisj doesn't allow for user/post deletion, changes made to the system remain there until the redis images are removed.*
 
