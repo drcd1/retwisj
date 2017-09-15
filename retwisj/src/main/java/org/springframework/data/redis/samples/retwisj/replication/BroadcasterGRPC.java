@@ -17,7 +17,7 @@ public class BroadcasterGRPC extends Broadcaster {
 											new HashSet<BroadcastServiceGrpc.BroadcastServiceBlockingStub>();
 	
 	
-	private void log(String hostAddr) {
+	void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
 			
@@ -45,13 +45,6 @@ public class BroadcasterGRPC extends Broadcaster {
 			ThreadMethod r = new ThreadMethod(stub, cmd);
 			new Thread(r).start();
 		}
-	}
-	
-	public void initialize(){		
-		String retAddr = System.getenv("RET_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}		
 	}
 	
 	class ThreadMethod implements Runnable{

@@ -10,7 +10,7 @@ public class BroadcasterRest extends Broadcaster {
 	private HashSet<String> replicas = new HashSet<String>();
 	private RestTemplate template = new RestTemplate();
 	
-	private void log(String hostAddr) {
+	void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
 			replicas.add("http://" + hostAddr + ":8080/retwisj/replication/");
@@ -29,13 +29,6 @@ public class BroadcasterRest extends Broadcaster {
 				new Thread(r).start();
 			}
 		}
-	
-	public void initialize(){
-		String retAddr = System.getenv("RET_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}
-	}
 	
 	class ThreadMethod implements Runnable{
 		ThreadMethod(String r, CommandData d){

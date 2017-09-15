@@ -23,7 +23,7 @@ public class BroadcasterThrift extends Broadcaster {
 	private HashSet<String> replicas = new HashSet<String>();
 	
 	
-	private void log(String hostAddr) {
+	void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
 			
@@ -56,13 +56,6 @@ public class BroadcasterThrift extends Broadcaster {
 		}
 	}
 	
-	public void initialize(){
-		String retAddr = System.getenv("RET_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}		
-	}
-	
 	class ThreadMethod implements Runnable{
 		ThreadMethod(String replica, BroadcastCommand cmd){
 			this.replica = replica;
@@ -73,7 +66,7 @@ public class BroadcasterThrift extends Broadcaster {
 		
 		public void run(){
 			try{
-				TTransport transport = new TFramedTransport(new TSocket(replica, 5052));
+				TTransport transport = new TSocket(replica, 5052);
 				while(!openTransport(transport)){
 					System.out.println("Sleeping...");
 					

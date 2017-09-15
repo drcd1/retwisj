@@ -26,6 +26,8 @@ public class ACLInterface {
 	private ACL acl;
 	private Broadcaster broadcaster;
 	
+	private boolean ready = false;
+	
 	@Inject
 	public ACLInterface(ACL acl){
 		this.acl = acl;
@@ -58,6 +60,14 @@ public class ACLInterface {
 	
 	public void initializeBroadcaster(){
 		broadcaster.initialize();
+	}
+	
+	public boolean isReady(){
+		return ready;
+	}
+	
+	public void ready(){
+		ready = true;
 	}
 	
 }

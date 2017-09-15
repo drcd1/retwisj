@@ -1,5 +1,0 @@
-Users: 10
-Actions: 10
-Blocks: .3
-Reads: .3
-Posts: .3

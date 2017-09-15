@@ -1,10 +1,8 @@
 package acl.replication;
 
-import org.apache.thrift.server.TNonblockingServer;
+import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TServer.Args;
-import org.apache.thrift.transport.TNonblockingServerSocket;
-import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
@@ -23,8 +21,8 @@ public class ReceiverThrift{
 					new BroadcastService.Processor<BroadcastService.Iface>(handler);
 		
 		try{
-			TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(5052);
-			TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(processor));
+			TServerTransport serverTransport = new TServerSocket(5052);
+			TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
 			System.out.println("starting receiver server...");
 			server.serve();
 		} catch (Exception e){

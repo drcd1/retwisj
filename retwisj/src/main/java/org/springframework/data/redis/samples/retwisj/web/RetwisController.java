@@ -65,7 +65,7 @@ public class RetwisController {
 	@Autowired
 	public RetwisController(RetwisRepositoryInterface twitter) {
 		this.retwis = twitter;
-		acl = new ACLInterfaceThrift();
+		acl = new ACLInterfaceRest();
 				
 		System.out.println("generatedController..");
 	}
@@ -187,6 +187,7 @@ public class RetwisController {
 	@RequestMapping("/!{name}/read")
 	@ResponseBody
 	public String read(@PathVariable String name, Model model){
+		retwis.setBlocked(acl.blockedBy(RetwisSecurity.getUid()));
 				
 		Range range = new Range();
 		String latestPost;
@@ -198,8 +199,6 @@ public class RetwisController {
 		if(!StringUtils.hasText(latestPost)){
 			latestPost = "empty";
 		}
-		
-		
 		return latestPost;
 	}
 

@@ -88,7 +88,7 @@ public class RetwisRepository {
 	private final RedisList<String> timeline;
 	
 	//users that block the current user
-	private Set<String> blocked_by;
+	private ThreadLocal<Set<String>> blocked_by = new ThreadLocal<Set<String>>();
 
 	private final HashMapper<Post, String, String> postMapper = new DecoratingStringHashMapper<Post>(
 			new JacksonHashMapper<Post>(Post.class));
@@ -103,7 +103,7 @@ public class RetwisRepository {
 		timeline = new DefaultRedisList<String>(KeyUtils.timeline(), template);
 		userIdCounter = new RedisAtomicLong(KeyUtils.globalUid(), template.getConnectionFactory());
 		postIdCounter = new RedisAtomicLong(KeyUtils.globalPid(), template.getConnectionFactory());
-		blocked_by = new HashSet<String>();
+		//blocked_by = new HashSet<String>();
 		run_tests = System.getenv("RUN_TESTS").equals("1");
 	}
 
@@ -135,7 +135,7 @@ public class RetwisRepository {
 	}
 	
 	public void setBlocked(Set<String> blocked){
-		blocked_by = blocked;
+		blocked_by.set(blocked);
 	}
 	
 	public List<WebPost> getPost(String pid) {
@@ -389,12 +389,11 @@ public class RetwisRepository {
 		List<WebPost> sort = template.sort(query, hm);
 		
 		// removes blocked posts
-		
 		for (Iterator<WebPost> it= sort.iterator(); it.hasNext();) {
 		    WebPost p  = it.next();
-		    if(blocked_by.contains(findUid(p.getName()))){
+		    if(blocked_by.get().contains(findUid(p.getName()))){
 				it.remove();
-		    }
+		    } 
 		}
 			
 			

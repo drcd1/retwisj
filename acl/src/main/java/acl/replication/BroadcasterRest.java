@@ -12,7 +12,7 @@ public class BroadcasterRest extends Broadcaster {
 	private HashSet<String> replicas = new HashSet<String>();
 	private RestTemplate template = new RestTemplate();
 	
-	private void log(String hostAddr) {
+	void log(String hostAddr) {
 		try {
 			System.out.println("Will add " + hostAddr);
 			replicas.add("http://" + hostAddr + ":8080/acl/replication/");
@@ -27,17 +27,14 @@ public class BroadcasterRest extends Broadcaster {
 	//should return sucess/failure?
 	public void broadcast(CommandData data, int delay){
 		for(String replica: replicas){
+			System.out.println("Going to broadcast...");
 			ThreadMethod r = new ThreadMethod(replica, data, delay);
 			new Thread(r).start();
+
+			System.out.println("Am broadcasting...");
 		}
 	}
 	
-	public void initialize(){
-		String retAddr = System.getenv("ACL_LINKS");
-		for(String addr: retAddr.split(":")){
-			log(addr);
-		}
-	}
 	
 	class ThreadMethod implements Runnable{
 		ThreadMethod(String r, CommandData d, int delay){
@@ -53,7 +50,9 @@ public class BroadcasterRest extends Broadcaster {
 		public void run(){
 			if(delay>0){
 				try {
+					System.out.println("sleeping through replication");
 					TimeUnit.SECONDS.sleep(delay);
+					System.out.println("slept through replication");
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

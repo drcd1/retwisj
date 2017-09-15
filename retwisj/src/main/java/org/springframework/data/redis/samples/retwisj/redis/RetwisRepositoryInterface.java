@@ -193,7 +193,6 @@ public class RetwisRepositoryInterface {
 		broadcaster.broadcast(new CommandData(CommandData.Type.FOLLOW, 
 				new ArrayList<String>(Arrays.asList(uid, targetUser))));
 		
-		System.out.println("Broadcasting: following: " + targetUser);
 				
 	}
 
@@ -202,7 +201,6 @@ public class RetwisRepositoryInterface {
 		
 		broadcaster.broadcast(new CommandData(CommandData.Type.STOP_FOLLOWING, 
 				new ArrayList<String>(Arrays.asList(uid, targetUser))));	
-		System.out.println("Broadcasting: stop following: " + targetUser);
 		
 	}
 

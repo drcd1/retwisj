@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -40,5 +41,11 @@ public class ACLController {
 	public String unblock(@RequestParam("id") String uid, @RequestParam("tid") String targetUid){
 		acl.unblock(uid, targetUid);
 		return "sucess";
+	}
+	
+	@ResponseBody
+	@RequestMapping("/ready")
+	public String isReady(){
+		return acl.isReady()?"yes":"no";
 	}
 }

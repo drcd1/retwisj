@@ -1,5 +1,7 @@
 package org.springframework.data.redis.samples.retwisj;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,17 @@ public class Starter{
 		new Thread(receiveThrift).start();
 		new Thread(receiveGrpc).start();
 		
+		System.out.println("Initialize broadcast...");
+		
 		retwis.initializeBroadcaster();
+		
+		RestTemplate rt = new RestTemplate();
+		
+		while(rt.getForObject("http://acl:8080/acl/ready",String.class).equals("no")){
+			System.out.println("Waiting for acl...");
+			TimeUnit.SECONDS.sleep(15);
+		}
+		
 		if(System.getenv("RUN_TESTS").equals("1")){
 			System.out.println("logging replica...");
 			Thread t = new Thread(new Runnable(){

@@ -6,11 +6,13 @@ import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import acl.replication.Broadcaster;
 import acl.replication.ReceiverGrpc;
@@ -73,7 +75,18 @@ public class ACLServerGenerator implements CommandLineRunner {
 		new Thread(receiveThrift).start();
 		new Thread(receiveGrpc).start();
 		
-		acl.initializeBroadcaster();			
+		System.out.println("Initializing broadcaster...");
+		acl.initializeBroadcaster();	
+		
+
+		System.out.println("Gettin ready");
+		
+		TimeUnit.SECONDS.sleep(10);
+		
+		acl.ready();
+		
+
+		System.out.println("ready!");
 		
 	}
 }

@@ -1,63 +1,94 @@
 version: '3'
 services:
-  acl-eu:                 
+  acl-pt:                 
     build: ./acl                          
     links:                                
-     - redis-acl-eu:redis2
+     - redis-acl-pt:redis2
     expose:                               
      - '8080'                             
      - '8084'                             
      - '9090'                             
     environment:                 
-      - ACL_LINKS=acl-us
-      - MY_NAME=acl-eu
-  redis-acl-eu:           
+      - ACL_LINKS=acl-en:acl-uk
+      - MY_NAME=acl-pt
+  redis-acl-pt:           
     image: redis            
     expose:                 
       - '6379'              
-  retwisj-eu:                   
+  retwisj-pt:                   
     build: ./retwisj         
     ports:                   
       - '8080:8080'  
     links:                   
-      - redis-ret-eu:redis 
-      - acl-eu:acl         
+      - redis-ret-pt:redis 
+      - acl-pt:acl         
     environment:                 
-      - RET_LINKS=retwisj-us
-      - MY_NAME=retwisj-eu
+      - RET_LINKS=retwisj-en:retwisj-uk
+      - MY_NAME=retwisj-pt
       - RUN_TESTS=1
-  redis-ret-eu:
+  redis-ret-pt:
     image: redis 
     expose:      
       - '6379'   
 
-  acl-us:                 
+  acl-en:                 
     build: ./acl                          
     links:                                
-     - redis-acl-us:redis2
+     - redis-acl-en:redis2
     expose:                               
      - '8080'                             
      - '8084'                             
      - '9090'                             
     environment:                 
-      - ACL_LINKS=acl-eu
-      - MY_NAME=acl-us
-  redis-acl-us:           
+      - ACL_LINKS=acl-pt:acl-uk
+      - MY_NAME=acl-en
+  redis-acl-en:           
     image: redis            
     expose:                 
       - '6379'              
-  retwisj-us:                   
+  retwisj-en:                   
     build: ./retwisj         
     ports:                   
       - '8081:8080'  
     links:                   
-      - redis-ret-us:redis 
-      - acl-us:acl         
+      - redis-ret-en:redis 
+      - acl-en:acl         
     environment:                 
-      - RET_LINKS=retwisj-eu
-      - MY_NAME=retwisj-us
+      - RET_LINKS=retwisj-pt:retwisj-uk
+      - MY_NAME=retwisj-en
       - RUN_TESTS=1
-  redis-ret-us:
+  redis-ret-en:
+    image: redis 
+    expose:      
+      - '6379'   
+
+  acl-uk:                 
+    build: ./acl                          
+    links:                                
+     - redis-acl-uk:redis2
+    expose:                               
+     - '8080'                             
+     - '8084'                             
+     - '9090'                             
+    environment:                 
+      - ACL_LINKS=acl-pt:acl-en
+      - MY_NAME=acl-uk
+  redis-acl-uk:           
+    image: redis            
+    expose:                 
+      - '6379'              
+  retwisj-uk:                   
+    build: ./retwisj         
+    ports:                   
+      - '8082:8080'  
+    links:                   
+      - redis-ret-uk:redis 
+      - acl-uk:acl         
+    environment:                 
+      - RET_LINKS=retwisj-pt:retwisj-en
+      - MY_NAME=retwisj-uk
+      - RUN_TESTS=1
+  redis-ret-uk:
     image: redis 
     expose:      
       - '6379'   
@@ -67,4 +98,4 @@ services:
     expose:        
       - '8080'        
     environment:       
-      - RET_LINKS=retwisj-eu:retwisj-us
+      - RET_LINKS=retwisj-pt:retwisj-en:retwisj-uk
