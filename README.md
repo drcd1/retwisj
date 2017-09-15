@@ -152,4 +152,40 @@ The following sequence of images showcases the problem described above:
 :-------------------------:|:-------------------------:
 *Figure 3: Eve sees Alice's post **(EU)*** | *Figure 4: After a while, Eve no longer sees the post **(EU)***
 
+## The Sandbox (temporary name)
+The sandbox is our client simulation application. It simulates many users interacting with the system. The following parameters can be customized in a configuration file:
+
+- **n_users:** the number of users to simulate.
+- **actions:** the number of actions each user performs on the system.
+- **block:** the probability of a user blocking
+- **post:** the probability  of a user posting
+- **read:** the probability  of a user reading
+- **delay_chance:** the odds of there being delay in the replication of "block" actions.
+- **delay:** the number of seconds that the replication of "block" actions is delayed by.
+
+#### The simulation plan
+
+The sandbox starts by setting up all users. First every user is signed up onto a single replica. When all replicas receive the information, the sandbox creates a new thread for each user and randomly assigns a replica to it. 
+
+Then, for every user, we perform the number of actions it's supposed to perform over the replica that was previously assigned to it.
+Every time we perform an action, we randomly select the action to be performed (block, post or read) according the probabilities defined in the configuration file.
+
+#### The actions
+
+##### Block
+Randomly selects an unblocked user and blocks it. If there are no users left unblocked, it does nothing (but still counts as an action).
+
+##### Post
+Posts to the system. The post contains the name of the users blocked so far.
+
+##### Read
+Reads the latest post of every user (counts as one read per user). If the post contains the name of the user executing the action, we count one bad read.
+
+In the end, we print a log of the actions taken by every user, and we print a summary.
+
+#### Setting up
+To run the sandbox, run the script composeGenerator.sh with the option --test.
+This runs the tests upon starting the system with docker-compose.
+
+Note: because retwisj doesn't allow for user/post deletion, changes made to the system remain there until the redis images are removed
 
