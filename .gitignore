@@ -1,0 +1,2 @@
+# use composeGenerator.sh to generate a docker-compose for this project
+docker-compose.yml

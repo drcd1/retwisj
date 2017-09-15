@@ -19,6 +19,10 @@ if [ $# -eq 0 ];
 			'--test' )
 				runTests=1
 			;;
+            '--port' )
+				port=$2
+                shift
+			;;
 			* )
 				zone_list+=($key)
 		esac
