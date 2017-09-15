@@ -47,7 +47,7 @@ public class ACLInterfaceThrift implements ACLInterface {
 	
 	public AclService.Client getNewClient(){
 		
-		TTransport transport = new TFramedTransport(new TSocket("acl", 9090));
+		TTransport transport = new TSocket("acl", 9090);
 		while (!openTransport(transport)){
 			try{
 				TimeUnit.SECONDS.sleep(10);
@@ -99,6 +99,7 @@ public class ACLInterfaceThrift implements ACLInterface {
 		if(uid==null)
 			return new HashSet<String>();
 		try{
+			System.out.println("Getting blocked by...");
 			Set<String> tmp = getNewClient().blockedBy(uid);			
 			return tmp;
 		} catch (TException x) {

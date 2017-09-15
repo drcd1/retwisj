@@ -1,9 +1,13 @@
 package sandbox;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -156,15 +160,37 @@ public class Sandbox {
 		int badReads=0;
 		
 		for(User user: users){
-			System.out.println("LOG FOR USER " + user.name + " in replica " + user.replica + ":\n" +user.getLog()+"\n");
+			String log = ("LOG FOR USER " + user.name + " in replica " + user.replica + ":\n" +user.getLog()+"\n");
+			System.out.println(log);
+			try{
+				Writer writer = new BufferedWriter(new OutputStreamWriter(
+				          new FileOutputStream("logs/"+user.name+"-log.txt"), "utf-8"));
+			    writer.write(log);
+			    writer.close();
+			} catch (IOException e) {
+			   e.printStackTrace();
+			}
+			
 			reads += user.getReads();
 			badReads += user.getBadReads();
 		}
-			
 		
-		System.out.println("\n--------SUMMARY---------");
-		System.out.println("\nOf " + reads + " reads, " + badReads + " were bad reads.");
-		System.out.println("Failure Rate: " + (double)badReads/reads*100 + " %.");
+		String summary = "";
+		
+		
+		summary+=("\n--------SUMMARY---------\n");
+		summary+=("\nOf " + reads + " reads, " + badReads + " were bad reads.\n");
+		summary+=("Failure Rate: " + (double)badReads/reads*100 + " %.\n");
+		
+		System.out.println(summary);
+		try{
+			Writer writer = new BufferedWriter(new OutputStreamWriter(
+			          new FileOutputStream("logs/summary.txt"), "utf-8"));
+		    writer.write(summary);
+		    writer.close();
+		} catch (IOException e) {
+		   e.printStackTrace();
+		}
 		
 		
 	}

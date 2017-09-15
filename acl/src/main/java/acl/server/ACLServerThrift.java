@@ -40,7 +40,8 @@ public class ACLServerThrift{
 
 		TServerTransport serverTransport = new TServerSocket(9090);
 		TServer server = new TThreadPoolServer(new TThreadPoolServer.Args(serverTransport).processor(processor));
-
+		
+		System.out.println("Starting thrift server...");
 		server.serve();
 		
 	}
@@ -76,7 +77,9 @@ public class ACLServerThrift{
 	    
 	    @Override
 	    public Set<String> blockedBy(String uid) {
+	    	System.out.println("Returning blocked by...");
 	    	Set<String> blocks = acl.blockedBy(uid);
+	    	System.out.println("Returning blocked by2...");
 	    	return blocks;	    	
 	    }
 

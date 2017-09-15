@@ -31,7 +31,7 @@ public class ACLInterface {
 	@Inject
 	public ACLInterface(ACL acl){
 		this.acl = acl;
-		broadcaster = new BroadcasterThrift();
+		broadcaster = new BroadcasterGRPC();
 	}
 	
 	public Set<String> blocks(String uid){
